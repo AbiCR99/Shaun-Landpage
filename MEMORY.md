@@ -39,4 +39,5 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resumí o borrá lo qu
 - [ ] Probar la escena en un iPhone real (preview de Vercel).
 - [ ] Si se extiende el video en Flow, regenerar con `npm run media` y revisar `EXIT_FRAME`.
 - [ ] Datos del artista: links, bios, fotos, releases con sello/fecha, email de booking, PDF del press kit, key de Web3Forms.
-- [ ] Deploy de preview en Vercel (conectando el repo), Open Graph (imagen y dominio real).
+- [ ] Deploy de preview en Vercel (conectando el repo).
+- [ ] **Cuando llegue el dominio real:** en Vercel → Settings → Environment Variables, poner `SITE_URL=https://<dominio>` (sin barra final) y redeployar. Nada más: canonical, hreflang, `og:image`, sitemap y robots salen de `site` (`astro.config.mjs`). Hasta entonces, en Vercel se usa sola `VERCEL_PROJECT_PRODUCTION_URL` (el `.vercel.app`); local cae a `http://localhost:4321`.
