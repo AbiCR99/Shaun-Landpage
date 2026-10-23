@@ -4,40 +4,37 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resumí o borrá lo qu
 
 ## Estado actual
 
-- v1: sitio Astro estático y bilingüe (EN `/`, ES `/es/`), 7 secciones, sistema "luz en la oscuridad", embeds al clic, formularios Web3Forms, email ofuscado.
-- Video de la mano que suelta el cigarrillo (Google Flow, generado el 2026-10-21): escena atada al scroll a la derecha del título MUSIC + footer que se reproduce una vez. El hero volvió a la v1 (niebla + glow), sin video y sin la píldora de ubicación (pedido del equipo).
-- Faltan datos reales del artista (marcadores `[PENDIENTE]`). Sin deploy todavía.
-- 2026-10-23: repo en GitHub https://github.com/Va-Delivery/Shaun-landpage (rama `main`, remoto SSH vía alias `github-va`). Las capturas de revisión (`src/assets/image/`) y `references/` están en `.gitignore`.
+- Sitio Astro estático y bilingüe (EN `/`, ES `/es/`), 7 secciones, "luz en la oscuridad". Repo: https://github.com/Va-Delivery/Shaun-landpage (`main`, SSH vía alias `github-va`). Sin deploy todavía.
+- Video de Google Flow (2026-10-21): escena atada al scroll al lado de MUSIC + footer que se reproduce una vez.
+- 2026-10-23, revisión completa (14 commits, sin push): fallback del footer en iOS, glow del hero azul, `SITE_URL`, OG + apple-touch-icon (`npm run og`), 404 bilingüe, sitemap/robots, JSON-LD `MusicGroup`, y 7 animaciones (títulos del humo, brasa que respira, señal de Radio Silence, cascada de releases, chispa al enviar, fundido de idioma, header que se oculta + sección activa).
+- Faltan datos reales del artista (marcadores `[PENDIENTE]`).
 
 ## Decisiones (y por qué)
 
-- **Astro estático, sin framework de UI; textos en TS** (el tipo `Dictionary` obliga a la paridad EN/ES). **`null` = no confirmado.**
-- **Una luz naranja por sección.** En Music, la brasa es la luz mientras cae y después pasa al play destacado (`EXIT_FRAME` 52 en desktop y mobile). Listen siempre encendido.
-- **La mano pasó del hero a Music** (2026-10-21): el equipo la prefirió en el espacio vacío al lado del título; en el hero tapaba el nombre.
-- **La caída solo avanza y queda fija al terminar** (mano vacía): antes el cigarrillo volvía a la mano al subir, pero en el footer queda en el piso; era contradictorio. Una vez por visita (al recargar se repite).
-- **Sin pin en Music:** la sección es más alta que la pantalla. La caída va de 90 % → 20 % del viewport.
-- **WebP + canvas, no MP4 + `currentTime`:** el seek de video en iOS es asíncrono y salta.
-- **Nitidez sin vectorizar:** la borrosidad venía de estirar 1280 px a 2,25–2,5× en Retina. Se mitigó con q85/q72 + `unsharp` y sin escalar los cuadros. Vectorizar (potrace/híbrido) quedó como opción si no alcanza.
-- **Escena al doble de tamaño (2026-10-22, pedido del equipo):** desktop `min(880px, 80%)`, mobile `min(280px, 85%)`. Trade-offs aceptados: la caída pasa detrás del texto y del reproductor, y con el video en 720p se ve algo más blando en Retina (~2×). Si se exporta 1080p desde Flow, solo hay que regenerar.
-- **Recortes:** desktop 900×620 desde y=100 (sin el humo de arriba: a 880 px la mano quedaba detrás del reproductor); mobile vertical 480×600 nativo (con 400 px solo entraban las puntas de los dedos).
-- **Fondo del video:** `curves` lo deja apenas debajo de `#070D18` y la escena usa `mix-blend-mode: lighten`, que borra los bordes de la caja (antes se veía un rectángulo).
-- **Cuadros al primer scroll/toque, con `img.decode()`:** al cargarlos en `load`, Lighthouse mobile bajaba a 78.
-- **Final del footer:** el video termina con humo en el aire; no se extendió con Flow. Fundido a un último cuadro con el humo tapado.
-- Pesos: Music desktop 1,3 MB, mobile 634 KB, footer 95 KB. Lighthouse mobile 99 / desktop 100.
+- **Textos en TS** (paridad EN/ES por tipos). **`null` = no confirmado**; JSON-LD solo con datos confirmados.
+- **Una luz naranja por sección.** El glow del hero pasó a azul (competía con Listen). En Music la brasa cae y la luz pasa al play destacado (`EXIT_FRAME` 52), que respira. El naranja solo anima en la brasa del play y en la chispa del formulario.
+- **Escena de Music:** solo avanza y queda en la mano vacía (coherente con el footer); sin pin; WebP + canvas (el seek de video en iOS salta); doble de tamaño a pedido (más blanda en Retina con el 720p); recorte desktop 900×620 desde y=100; `curves` + `mix-blend-mode: lighten` borran el borde de la caja; cuadros recién al primer scroll (si no, Lighthouse mobile bajaba a 78).
+- **Animaciones:** atadas al scroll con `animation-timeline` dentro de `@supports`; Firefox (sin soporte en estable) usa `src/scripts/reveal.ts` (IntersectionObserver). El estado oculto solo lo agrega JS. Reduced motion: `animation: none` explícito y estado final.
+- **Easing:** `--ease-slow` para entradas; `ease-in-out` en loops (la brasa); `linear` en animaciones atadas al scroll (el scroll marca el ritmo). Con `--ease-slow` saltaban y quedaban quietas.
+- **Cascada de releases por tiempo** (IO en todos los navegadores): en un timeline de scroll no hay milisegundos.
+- **View Transitions nativas entre documentos, no `<ClientRouter />`:** así los scripts inline siguen corriendo como cargas normales.
+- **OG con el Chrome headless instalado** (a ≥ 500 px el viewport es exacto), sin sumar `puppeteer-core` al proyecto.
+- **MusicGroup, no Person:** schema.org lo admite para solistas y tiene `genre`.
 
 ## Aprendizajes y errores a evitar
 
-- `chrome --headless --window-size=375` no da viewport real: medir con `puppeteer-core` (scratchpad).
-- `astro preview` en Astro 7 corre como daemon: `npx astro preview stop`.
-- Monterey: Homebrew sin binarios; ffmpeg viene de `ffmpeg-static` (6.1, con libwebp/libx264, sin `drawtext`).
-- `crop=1:1` sobre yuv420p falla: convertir a `rgb24` antes de muestrear un píxel.
-- `overflow: hidden` rompe `position: sticky`; `isolation: isolate` anula `mix-blend-mode` contra la página.
-- No hay botón de play mientras el destacado esté pendiente: para probar la luz, poner un `src` de prueba y revertirlo.
+- Medir con `puppeteer-core` en el scratchpad (`--window-size` < 500 px no da viewport real). El dev server del usuario puede estar en 4321: usar `astro preview --port 4322` para medir el build.
+- **El minificador fusiona `animation` + `animation-timeline` en un shorthand inválido** (sin `var()` en el valor): usar longhands (`animation-name`, `-timing-function`, `-fill-mode`, `-timeline`).
+- Transiciones de entrada: ponerlas en el estado visible; si están en el oculto, hay un fundido de salida al cargar.
+- `overflow: hidden` rompe `sticky`; `isolation: isolate` anula `mix-blend-mode` contra la página.
+- `scaleY` sobre un `<g>` del SVG + `vector-effect: non-scaling-stroke` (sobre el `<svg>` el trazo también se aplasta).
+- Monterey: ffmpeg de `ffmpeg-static` (sin `drawtext`); `crop=1:1` necesita `rgb24` antes.
+- Para probar la luz del play o la chispa: `src` de prueba / `PUBLIC_WEB3FORMS_KEY` falsa solo en el build local, e interceptar Web3Forms; revertir y reconstruir antes del commit.
 
 ## Pendientes
 
-- [ ] Probar la escena en un iPhone real (preview de Vercel).
-- [ ] Si se extiende el video en Flow, regenerar con `npm run media` y revisar `EXIT_FRAME`.
-- [ ] Datos del artista: links, bios, fotos, releases con sello/fecha, email de booking, PDF del press kit, key de Web3Forms.
-- [ ] Deploy de preview en Vercel (conectando el repo).
-- [ ] **Cuando llegue el dominio real:** en Vercel → Settings → Environment Variables, poner `SITE_URL=https://<dominio>` (sin barra final) y redeployar. Nada más: canonical, hreflang, `og:image`, sitemap y robots salen de `site` (`astro.config.mjs`). Hasta entonces, en Vercel se usa sola `VERCEL_PROJECT_PRODUCTION_URL` (el `.vercel.app`); local cae a `http://localhost:4321`.
+- [ ] Push de los 14 commits (cuando se pida) y deploy de preview en Vercel desde la web.
+- [ ] **Cuando llegue el dominio real:** Vercel → Settings → Environment Variables → `SITE_URL=https://<dominio>` (sin barra final) y redeploy. Canonical, hreflang, `og:image`, sitemap, robots y JSON-LD salen de `site`. Hasta entonces Vercel usa `VERCEL_PROJECT_PRODUCTION_URL`; local, `localhost:4321`.
+- [ ] Probar en iPhone real: escena, footer con Ahorro de batería, fundido de idioma.
+- [ ] Datos del artista: links (llenan `sameAs`), bios, fotos, releases, email de booking, press kit, key de Web3Forms.
+- [ ] Si se extiende el video en Flow: `npm run media`, revisar `EXIT_FRAME` y `npm run og`.
