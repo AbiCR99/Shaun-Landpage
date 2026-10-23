@@ -1,0 +1,107 @@
+---
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__fog" aria-hidden="true"></div>
+  <div class="hero__glow" aria-hidden="true"></div>
+
+  <div class="hero__content container">
+    <h1 class="hero__title" id="hero-title">
+      <span>Shaun</span>
+      <span>Nolanh</span>
+    </h1>
+    <p class="hero__tagline mono">{t.hero.tagline}</p>
+    <div class="hero__ctas">
+      <a class="btn btn--glow" href="#music">
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"></path></svg>
+        {t.hero.listen}
+      </a>
+      <a class="btn" href="#booking">{t.hero.booking}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    /* Fits a 375×667 phone without scrolling (header is 3.5rem) */
+    min-height: calc(100svh - 3.5rem);
+    padding-block: var(--space-l) var(--space-xl);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* Atmosphere: slow blue fog drifting like a long progressive breakdown */
+  .hero__fog {
+    position: absolute;
+    inset: -20%;
+    z-index: -2;
+    background:
+      radial-gradient(40% 35% at 25% 30%, color-mix(in srgb, var(--blue-400) 22%, transparent), transparent 70%),
+      radial-gradient(45% 40% at 80% 20%, color-mix(in srgb, var(--dusk-500) 45%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--night-900), var(--night-950) 75%);
+    animation: drift 60s ease-in-out infinite alternate;
+  }
+
+  /* A low orange glow on the horizon */
+  .hero__glow {
+    position: absolute;
+    inset: auto -10% -35% -10%;
+    height: 70%;
+    z-index: -1;
+    background: radial-gradient(50% 50% at 50% 100%, color-mix(in srgb, var(--glow-500) 28%, transparent), color-mix(in srgb, var(--ember-600) 8%, transparent) 55%, transparent 75%);
+    pointer-events: none;
+  }
+
+  @keyframes drift {
+    to {
+      transform: translate3d(6%, 4%, 0) scale(1.08);
+    }
+  }
+
+  .hero__content {
+    display: grid;
+    gap: var(--space-m);
+    justify-items: start;
+  }
+
+  .hero__title {
+    display: grid;
+    font-size: var(--step-hero);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    transition: text-shadow 0.6s var(--ease-slow);
+  }
+
+  /* Chromatic aberration: only on the name, only on hover */
+  .hero__title:hover {
+    text-shadow:
+      -0.03em 0 color-mix(in srgb, var(--ember-600) 75%, transparent),
+      0.03em 0 color-mix(in srgb, var(--blue-400) 75%, transparent);
+  }
+
+  .hero__tagline {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    color: var(--fog-300);
+  }
+
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    margin-top: var(--space-xs);
+  }
+</style>

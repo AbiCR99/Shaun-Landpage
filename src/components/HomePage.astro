@@ -1,0 +1,32 @@
+---
+// The whole landing, shared by "/" (EN) and "/es/" (ES). Only `lang` changes.
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Hero from './Hero.astro';
+import Music from './Music.astro';
+import Sets from './Sets.astro';
+import About from './About.astro';
+import Booking from './Booking.astro';
+import Collabs from './Collabs.astro';
+import Footer from './Footer.astro';
+import type { Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<Base lang={lang}>
+  <Header lang={lang} />
+  <main id="main">
+    <Hero lang={lang} />
+    <Music lang={lang} />
+    <Sets lang={lang} />
+    <About lang={lang} />
+    <Booking lang={lang} />
+    <Collabs lang={lang} />
+  </main>
+  <Footer lang={lang} />
+</Base>

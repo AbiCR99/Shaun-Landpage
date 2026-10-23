@@ -1,0 +1,84 @@
+---
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="section" id="about" aria-labelledby="about-title">
+  <div class="container about">
+    <h2 class="section__title" id="about-title">{t.about.title}</h2>
+    <div class="about__body">
+      <p class="about__short">{t.about.short}</p>
+      <!-- <details> opens and closes without JS and is keyboard accessible out of the box -->
+      <details class="about__more">
+        <summary class="mono">{t.about.more}</summary>
+        {t.about.long.map((p) => <p>{p}</p>)}
+      </details>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  .about__body {
+    display: grid;
+    gap: var(--space-m);
+    max-width: 40rem;
+  }
+
+  .about__short {
+    font-size: var(--step-1);
+    line-height: 1.5;
+  }
+
+  .about__more {
+    display: grid;
+    gap: var(--space-s);
+    color: var(--fog-300);
+  }
+
+  .about__more p + p,
+  .about__more summary + p {
+    margin-top: var(--space-s);
+  }
+
+  summary {
+    display: inline-flex;
+    gap: 0.6em;
+    align-items: center;
+    width: fit-content;
+    min-height: 2.75rem;
+    text-transform: uppercase;
+    color: var(--moon-100);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: '+';
+    transition: transform 0.3s var(--ease-slow);
+  }
+
+  details[open] summary::after {
+    transform: rotate(45deg);
+  }
+
+  @media (min-width: 64rem) {
+    .about {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+</style>

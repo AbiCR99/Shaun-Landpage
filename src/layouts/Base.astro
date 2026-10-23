@@ -1,0 +1,49 @@
+---
+import '@fontsource-variable/unbounded/wght.css';
+import '@fontsource-variable/manrope/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '../styles/global.css';
+// Preload only the display font's latin subset: it's what the hero needs first.
+import unboundedLatin from '@fontsource-variable/unbounded/files/unbounded-latin-wght-normal.woff2?url';
+import { getAbsoluteLocaleUrl } from 'astro:i18n';
+import { languages, useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const canonical = getAbsoluteLocaleUrl(lang, '');
+const ogLocale = lang === 'es' ? 'es_AR' : 'en_US';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <meta name="theme-color" content="#070D18" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href={unboundedLatin} as="font" type="font/woff2" crossorigin />
+
+    <link rel="canonical" href={canonical} />
+    {Object.keys(languages).map((l) => <link rel="alternate" hreflang={l} href={getAbsoluteLocaleUrl(l, '')} />)}
+    <link rel="alternate" hreflang="x-default" href={getAbsoluteLocaleUrl('en', '')} />
+
+    <!-- Open Graph: how the link looks when shared on WhatsApp / Instagram. TODO: add og:image. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Shaun Nolanh" />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.skipLink}</a>
+    <slot />
+  </body>
+</html>

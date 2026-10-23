@@ -1,0 +1,110 @@
+---
+import Embed from './Embed.astro';
+import MusicScene from './MusicScene.astro';
+import { featured, releases } from '../data/music';
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="section" id="music" aria-labelledby="music-title">
+  <div class="container music">
+    <MusicScene />
+    <header class="section__head">
+      <h2 class="section__title" id="music-title">{t.music.title}</h2>
+      <p class="section__lead">{t.music.lead}</p>
+    </header>
+
+    <div class="music__featured">
+      <p class="pill">{t.music.featured}</p>
+      <Embed embed={featured} lang={lang} glow />
+    </div>
+
+    <h3 class="music__subtitle">{t.music.releases}</h3>
+    <ul class="releases">
+      {
+        releases.map((r) => (
+          <li class="release">
+            <div class="release__main">
+              <p class="release__title">
+                {r.title ?? <span class="pending">[RELEASE PENDIENTE]</span>}
+              </p>
+              <p class="release__artists">{r.artists ?? <span class="pending">[ARTISTAS PENDIENTES]</span>}</p>
+            </div>
+            <div class="release__meta">
+              {r.type === 'remix' && <span class="pill">{t.music.remix}</span>}
+              {r.upcoming && <span class="pill">{t.music.upcoming}</span>}
+              <span class="mono">{r.label ?? <span class="pending">[SELLO]</span>}</span>
+              <span class="mono">{r.year ?? <span class="pending">[AÑO]</span>}</span>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Anchor for the decorative scene. No `isolation` here: the scene blends with the page itself (see MusicScene). */
+  .music {
+    position: relative;
+  }
+
+  .music__featured {
+    display: grid;
+    gap: var(--space-s);
+    justify-items: start;
+    margin-bottom: var(--space-xl);
+  }
+
+  .music__featured > :global(.embed) {
+    width: 100%;
+  }
+
+  .music__subtitle {
+    margin-bottom: var(--space-m);
+    font-size: var(--step-1);
+    text-transform: uppercase;
+  }
+
+  .releases {
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--blue-600);
+  }
+
+  .release {
+    display: grid;
+    gap: var(--space-xs);
+    padding-block: var(--space-m);
+    border-bottom: 1px solid var(--blue-600);
+  }
+
+  .release__title {
+    font-weight: 700;
+  }
+
+  .release__artists {
+    color: var(--fog-300);
+  }
+
+  .release__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs) var(--space-s);
+    color: var(--fog-300);
+  }
+
+  @media (min-width: 48rem) {
+    .release {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+</style>

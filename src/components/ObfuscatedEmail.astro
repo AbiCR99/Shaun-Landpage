@@ -1,0 +1,42 @@
+---
+// The address never appears in the HTML as plain text: the parts are stored reversed
+// and joined with JS on the visitor's browser. Simple bots that scrape HTML don't get it.
+interface Props {
+  email: string | null;
+}
+
+const { email } = Astro.props;
+const reverse = (s: string) => [...s].reverse().join('');
+const [user, domain] = email ? email.split('@') : [];
+---
+
+{
+  email ? (
+    <a class="email" href="#booking" data-u={reverse(user)} data-d={reverse(domain)}>
+      {user} [at] {domain.replace(/\./g, ' [dot] ')}
+    </a>
+  ) : (
+    <span class="pending">[EMAIL PENDIENTE]</span>
+  )
+}
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('a.email[data-u]').forEach((a) => {
+    const reverse = (s: string) => [...s].reverse().join('');
+    const address = `${reverse(a.dataset.u!)}@${reverse(a.dataset.d!)}`;
+    a.href = `mailto:${address}`;
+    a.textContent = address;
+  });
+</script>
+
+<style>
+  .email {
+    font-family: var(--font-mono);
+    text-underline-offset: 0.25em;
+    text-decoration-color: var(--blue-400);
+  }
+
+  .email:hover {
+    text-decoration-color: var(--moon-100);
+  }
+</style>

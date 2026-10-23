@@ -1,0 +1,204 @@
+---
+import LangSwitch from './LangSwitch.astro';
+import { homePath, useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const links = [
+  { href: '#music', label: t.nav.music },
+  { href: '#sets', label: t.nav.sets },
+  { href: '#about', label: t.nav.about },
+  { href: '#booking', label: t.nav.booking },
+  { href: '#collabs', label: t.nav.collabs },
+];
+---
+
+<header class="header">
+  <div class="header__bar container">
+    <a class="header__logo" href={homePath(lang)}>Shaun Nolanh</a>
+
+    <nav class="header__nav" id="site-nav" aria-label={t.nav.label}>
+      <ul>
+        {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <div class="header__tools">
+      <LangSwitch lang={lang} />
+      <button
+        class="header__toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        data-label-open={t.nav.menuOpen}
+        data-label-close={t.nav.menuClose}
+      >
+        <span class="visually-hidden">{t.nav.menuOpen}</span>
+        <span class="header__burger" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Mobile menu: the only JS in the header. Without JS the nav is still reachable
+  // because the anchors still work and the footer repeats the language switch.
+  const header = document.querySelector<HTMLElement>('.header');
+  const toggle = header?.querySelector<HTMLButtonElement>('.header__toggle');
+  const nav = header?.querySelector<HTMLElement>('.header__nav');
+
+  if (header && toggle && nav) {
+    header.dataset.js = 'true';
+    const label = toggle.querySelector('.visually-hidden')!;
+
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      label.textContent = open ? toggle.dataset.labelClose! : toggle.dataset.labelOpen!;
+      header.toggleAttribute('data-open', open);
+    };
+
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    nav.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && header.hasAttribute('data-open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--night-950) 82%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid color-mix(in srgb, var(--blue-600) 35%, transparent);
+  }
+
+  .header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    min-height: 3.5rem;
+  }
+
+  .header__logo {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .header__nav ul {
+    display: flex;
+    gap: var(--space-m);
+    padding: 0;
+    list-style: none;
+  }
+
+  .header__nav a {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--fog-300);
+    transition: color 0.3s var(--ease-slow);
+  }
+
+  .header__nav a:hover {
+    color: var(--moon-100);
+  }
+
+  .header__tools {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .header__toggle {
+    display: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .header__burger,
+  .header__burger::before {
+    display: block;
+    width: 1.4rem;
+    height: 1px;
+    margin-inline: auto;
+    background: var(--moon-100);
+    transition: transform 0.3s var(--ease-slow);
+  }
+
+  .header__burger {
+    transform: translateY(-4px);
+  }
+
+  .header__burger::before {
+    content: '';
+    transform: translateY(8px);
+  }
+
+  [data-open] .header__burger {
+    transform: rotate(45deg);
+  }
+
+  [data-open] .header__burger::before {
+    transform: rotate(-90deg);
+  }
+
+  /* Mobile: collapse the nav behind the toggle (only when JS is running). */
+  @media (max-width: 47.99rem) {
+    .header[data-js] .header__toggle {
+      display: block;
+    }
+
+    .header[data-js] .header__nav {
+      display: none;
+      position: absolute;
+      inset: 100% 0 auto;
+      height: calc(100svh - 3.5rem);
+      padding: var(--space-l) var(--gutter);
+      background: var(--night-950);
+    }
+
+    .header[data-js][data-open] .header__nav {
+      display: block;
+    }
+
+    .header[data-js] .header__nav ul {
+      flex-direction: column;
+      gap: var(--space-m);
+    }
+
+    .header[data-js] .header__nav a {
+      font-family: var(--font-display);
+      font-size: var(--step-2);
+      text-transform: uppercase;
+      color: var(--moon-100);
+    }
+
+    /* Without JS: hide the inline nav to avoid overflow; the footer and the anchors still work. */
+    .header:not([data-js]) .header__nav {
+      display: none;
+    }
+  }
+</style>

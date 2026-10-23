@@ -1,0 +1,64 @@
+---
+import Embed from './Embed.astro';
+import { sets } from '../data/music';
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="section section--alt" id="sets" aria-labelledby="sets-title">
+  <div class="container">
+    <header class="section__head">
+      <p class="pill">{t.sets.kicker}</p>
+      <h2 class="section__title" id="sets-title">{t.sets.title}</h2>
+      <p class="section__lead">{t.sets.lead}</p>
+    </header>
+
+    <ol class="sets">
+      {
+        sets.map((set, i) => (
+          <li class="set">
+            <p class="set__meta mono">
+              <span>{String(i + 1).padStart(2, '0')}</span>
+              <span>{set.date ?? <span class="pending">[FECHA]</span>}</span>
+              <span>{set.venue ?? <span class="pending">[LUGAR]</span>}</span>
+            </p>
+            <Embed embed={set} lang={lang} glow={i === 0} />
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .sets {
+    display: grid;
+    gap: var(--space-l);
+    padding: 0;
+    list-style: none;
+  }
+
+  .set {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .set__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    color: var(--fog-300);
+  }
+
+  @media (min-width: 64rem) {
+    .sets {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

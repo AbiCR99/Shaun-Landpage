@@ -1,0 +1,180 @@
+---
+// Contact form backed by Web3Forms (no backend of our own).
+// Works without JS (regular POST); with JS it sends via fetch and shows the status inline.
+// Antispam: Web3Forms' `botcheck` honeypot, which bots fill in and humans never see.
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  variant: 'booking' | 'collab';
+  glow?: boolean;
+}
+
+const { lang, variant, glow = false } = Astro.props;
+const t = useTranslations(lang);
+const accessKey = import.meta.env.PUBLIC_WEB3FORMS_KEY;
+const id = (name: string) => `${variant}-${name}`;
+
+type Field = {
+  name: string;
+  label: string;
+  type: 'text' | 'email' | 'url' | 'date' | 'textarea';
+  required: boolean;
+  autocomplete?: 'name' | 'email';
+};
+const fields: Field[] =
+  variant === 'booking'
+    ? [
+        { name: 'name', label: t.form.name, type: 'text', required: true, autocomplete: 'name' },
+        { name: 'email', label: t.form.email, type: 'email', required: true, autocomplete: 'email' },
+        { name: 'date', label: t.form.date, type: 'date', required: false },
+        { name: 'venue', label: t.form.venue, type: 'text', required: true },
+        { name: 'message', label: t.form.message, type: 'textarea', required: true },
+      ]
+    : [
+        { name: 'name', label: t.form.name, type: 'text', required: true, autocomplete: 'name' },
+        { name: 'email', label: t.form.email, type: 'email', required: true, autocomplete: 'email' },
+        { name: 'music_link', label: t.form.musicLink, type: 'url', required: true },
+        { name: 'proposal', label: t.form.proposal, type: 'textarea', required: true },
+      ];
+---
+
+<form
+  class="form"
+  action="https://api.web3forms.com/submit"
+  method="POST"
+  data-contact-form
+  data-sending={t.form.sending}
+  data-success={t.form.success}
+  data-error={t.form.error}
+>
+  <input type="hidden" name="access_key" value={accessKey ?? ''} />
+  <input type="hidden" name="subject" value={variant === 'booking' ? t.form.subjectBooking : t.form.subjectCollab} />
+  <input type="hidden" name="from_name" value="Shaun Nolanh site" />
+  <input type="checkbox" name="botcheck" class="form__honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+  {
+    fields.map((f) => (
+      <div class:list={['form__field', f.type === 'textarea' && 'form__field--wide']}>
+        <label for={id(f.name)}>
+          {f.label}
+          {f.required && <span aria-hidden="true"> *</span>}
+        </label>
+        {f.type === 'textarea' ? (
+          <textarea id={id(f.name)} name={f.name} rows="5" required={f.required} />
+        ) : (
+          <input id={id(f.name)} name={f.name} type={f.type} required={f.required} autocomplete={f.autocomplete} />
+        )}
+      </div>
+    ))
+  }
+
+  <div class="form__footer">
+    <button class:list={['btn', glow && 'btn--glow']} type="submit" disabled={!accessKey}>
+      {variant === 'booking' ? t.form.sendBooking : t.form.sendCollab}
+    </button>
+    {!accessKey && <p class="pending">{t.form.notConfigured}</p>}
+    <p class="form__status" role="status" aria-live="polite"></p>
+  </div>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const status = form.querySelector<HTMLElement>('.form__status')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      button.disabled = true;
+      status.textContent = form.dataset.sending!;
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message);
+        status.textContent = form.dataset.success!;
+        form.reset();
+      } catch {
+        status.textContent = form.dataset.error!;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .form {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  .form__honeypot {
+    display: none;
+  }
+
+  .form__field {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  label {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fog-300);
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--blue-600);
+    border-radius: var(--radius);
+    background: var(--night-950);
+    color: var(--moon-100);
+    transition: border-color 0.3s var(--ease-slow);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input:hover,
+  textarea:hover {
+    border-color: var(--blue-400);
+  }
+
+  input:focus-visible,
+  textarea:focus-visible {
+    border-color: var(--glow-500);
+    outline-offset: 0;
+  }
+
+  .form__footer {
+    display: grid;
+    gap: var(--space-s);
+    justify-items: start;
+  }
+
+  .form__status:empty {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .form {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form__field--wide,
+    .form__footer {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

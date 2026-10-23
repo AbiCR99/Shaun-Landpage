@@ -1,0 +1,165 @@
+---
+import LangSwitch from './LangSwitch.astro';
+import { socials } from '../data/site';
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <!-- Decorative: the cigarette from the hero lands here, sparks, smokes and goes out. Plays once. -->
+  <div class="footer__scene" aria-hidden="true">
+    <video
+      class="footer__video"
+      width="704"
+      height="400"
+      muted
+      playsinline
+      preload="none"
+      poster="/media/footer/first.webp"
+      disablepictureinpicture
+    >
+      <source src="/media/footer/footer.mp4" type="video/mp4" />
+    </video>
+    <img class="footer__still" src="/media/footer/last.webp" width="704" height="400" alt="" loading="lazy" />
+  </div>
+
+  <div class="container footer__inner">
+    <nav aria-label={t.footer.social}>
+      <ul class="footer__social">
+        {
+          socials.map((s) => (
+            <li>
+              {s.url ? (
+                <a href={s.url} rel="me noopener" target="_blank">{s.name}</a>
+              ) : (
+                <span>
+                  {s.name} <span class="pending">[LINK PENDIENTE]</span>
+                </span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="footer__bottom">
+      <LangSwitch lang={lang} />
+      <p class="mono">© {year} Shaun Nolanh. {t.footer.rights}</p>
+      <p class="mono">{t.footer.credits}</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Plays the landing once when ~40% of the footer is visible. With no `loop`,
+  // the video stays on its last frame: the cigarette, out, on the floor.
+  const footer = document.querySelector<HTMLElement>('.footer');
+  const video = footer?.querySelector<HTMLVideoElement>('.footer__video');
+
+  if (footer && video && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        video.preload = 'auto';
+        video.play().catch(() => {});
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(footer);
+  }
+</script>
+
+<style>
+  .footer {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding-block: var(--space-xl) var(--space-l);
+    border-top: 1px solid var(--blue-600);
+  }
+
+  /* Behind the content, bottom right. Never catches clicks. */
+  .footer__scene {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    /* Kept shorter than the footer so the top fade is never clipped */
+    width: min(528px, 70%);
+    aspect-ratio: 704 / 400;
+    pointer-events: none;
+    /* Top fade: the cigarette "enters" from above, continuing the hero. Left fade: blends into the page. */
+    mask-image: linear-gradient(to bottom, transparent, black 35%), linear-gradient(to right, transparent, black 25%);
+    mask-composite: intersect;
+  }
+
+  .footer__video,
+  .footer__still {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .footer__still {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer__video {
+      display: none;
+    }
+
+    .footer__still {
+      display: block;
+    }
+  }
+
+  .footer__inner {
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  .footer__social {
+    display: grid;
+    gap: var(--space-s) var(--space-l);
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .footer__social a {
+    display: inline-block;
+    padding-block: 0.5rem;
+    text-decoration: none;
+  }
+
+  .footer__social a:hover {
+    color: var(--glow-400);
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s) var(--space-l);
+    align-items: center;
+    color: var(--fog-300);
+  }
+
+  @media (min-width: 48rem) {
+    .footer__social {
+      grid-template-columns: repeat(3, auto);
+      justify-content: start;
+    }
+  }
+</style>

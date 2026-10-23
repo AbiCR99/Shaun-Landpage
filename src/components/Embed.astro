@@ -1,0 +1,136 @@
+---
+// "Facade" player: shows a lightweight button and only loads the real
+// SoundCloud/Spotify iframe after the visitor clicks. Zero third-party weight on first load.
+import type { Embed } from '../data/music';
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  embed: Embed;
+  lang: Lang;
+  /** The section's single orange light. */
+  glow?: boolean;
+}
+
+const { embed, lang, glow = false } = Astro.props;
+const t = useTranslations(lang);
+const providerName = embed.provider === 'spotify' ? 'Spotify' : 'SoundCloud';
+const height = embed.provider === 'spotify' ? 152 : 166;
+const title = embed.title ?? `${providerName} player`;
+---
+
+<div class="embed" style={`--embed-h: ${height}px`} data-embed-src={embed.src ?? undefined} data-embed-title={title} data-embed-provider={embed.provider}>
+  {
+    embed.src ? (
+      <button class:list={['embed__play', glow && 'embed__play--glow']} type="button">
+        <span class="embed__icon" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 12 12"><path d="M2 1l9 5-9 5z" fill="currentColor" /></svg>
+        </span>
+        <span class="embed__text">
+          <span class="embed__title">{embed.title ?? t.embed.play}</span>
+          <span class="mono embed__note">{t.embed.loadNotice} {providerName}</span>
+        </span>
+        <span class="visually-hidden">{t.embed.play}</span>
+      </button>
+    ) : (
+      <p class="embed__pending">
+        <span class="pending">[EMBED PENDIENTE · {providerName}]</span>
+      </p>
+    )
+  }
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.embed[data-embed-src]').forEach((el) => {
+    el.querySelector('button')?.addEventListener(
+      'click',
+      () => {
+        const src = new URL(el.dataset.embedSrc!);
+        if (el.dataset.embedProvider === 'soundcloud') src.searchParams.set('auto_play', 'true');
+
+        const iframe = document.createElement('iframe');
+        iframe.src = src.toString();
+        iframe.title = el.dataset.embedTitle!;
+        iframe.allow = 'autoplay; encrypted-media';
+        iframe.width = '100%';
+        iframe.height = getComputedStyle(el).getPropertyValue('--embed-h');
+        el.replaceChildren(iframe);
+      },
+      { once: true },
+    );
+  });
+</script>
+
+<style>
+  .embed {
+    /* Reserve the player's height so nothing jumps when it loads */
+    min-height: var(--embed-h);
+    border: 1px solid var(--blue-600);
+    border-radius: var(--radius);
+    background: var(--night-800);
+    overflow: hidden;
+  }
+
+  .embed :global(iframe) {
+    width: 100%;
+    height: var(--embed-h);
+    border: 0;
+  }
+
+  .embed__play {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    width: 100%;
+    min-height: var(--embed-h);
+    padding: var(--space-m);
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .embed__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 1px solid var(--fog-300);
+    border-radius: 50%;
+    transition: background-color 0.3s var(--ease-slow);
+  }
+
+  .embed__play--glow .embed__icon {
+    border-color: var(--glow-500);
+    background: var(--glow-500);
+    color: var(--night-950);
+  }
+
+  .embed__play:hover .embed__icon {
+    background: var(--blue-600);
+  }
+
+  .embed__play--glow:hover .embed__icon {
+    background: var(--glow-400);
+  }
+
+  .embed__text {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .embed__title {
+    font-weight: 700;
+  }
+
+  .embed__note {
+    color: var(--fog-300);
+  }
+
+  .embed__pending {
+    display: grid;
+    place-items: center;
+    min-height: var(--embed-h);
+    padding: var(--space-m);
+  }
+</style>
