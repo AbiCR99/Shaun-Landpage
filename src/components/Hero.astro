@@ -53,13 +53,13 @@ const t = useTranslations(lang);
     animation: drift 60s ease-in-out infinite alternate;
   }
 
-  /* A low orange glow on the horizon */
+  /* A cold, moonlit glow on the horizon: blue, so Listen stays the hero's only orange light */
   .hero__glow {
     position: absolute;
     inset: auto -10% -35% -10%;
     height: 70%;
     z-index: -1;
-    background: radial-gradient(50% 50% at 50% 100%, color-mix(in srgb, var(--glow-500) 28%, transparent), color-mix(in srgb, var(--ember-600) 8%, transparent) 55%, transparent 75%);
+    background: radial-gradient(50% 50% at 50% 100%, color-mix(in srgb, var(--blue-400) 22%, transparent), color-mix(in srgb, var(--dusk-500) 18%, transparent) 55%, transparent 75%);
     pointer-events: none;
   }
 
