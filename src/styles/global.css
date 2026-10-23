@@ -60,6 +60,19 @@ a {
   color: inherit;
 }
 
+/* ---------- Language switch: slow cross-fade between documents ----------
+   Native cross-document View Transitions (no Astro <ClientRouter />, so inline scripts keep running
+   as normal page loads). Browsers without support just navigate normally. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.8s;
+  animation-timing-function: var(--ease-slow);
+}
+
 /* ---------- Film grain over the whole page ---------- */
 body::after {
   content: '';
@@ -255,6 +268,10 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+
   /* Scroll-driven animations ignore the duration override below: switch them off explicitly. */
   .section__title {
     animation: none;
