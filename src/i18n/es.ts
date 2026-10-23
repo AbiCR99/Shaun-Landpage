@@ -82,6 +82,11 @@ export const es: Dictionary = {
     subjectBooking: 'Nuevo pedido de booking — sitio shaunnolanh',
     subjectCollab: 'Nueva propuesta de collab — sitio shaunnolanh',
   },
+  notFound: {
+    title: 'Acá se apagó la luz.',
+    text: 'Esta página no existe, o se consumió.',
+    cta: 'Volver al inicio',
+  },
   footer: {
     social: 'Redes',
     rights: 'Todos los derechos reservados.',

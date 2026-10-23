@@ -1,0 +1,68 @@
+---
+// Bilingual 404 on a single page (EN on top, ES below): we can't know the visitor's language here.
+// No header/footer: their #section links don't exist on this page.
+import Base from '../layouts/Base.astro';
+import { homePath, useTranslations } from '../i18n/utils';
+
+const en = useTranslations('en');
+const es = useTranslations('es');
+---
+
+<Base lang="en" title={`${en.notFound.title} — Shaun Nolanh`} noindex>
+  <main id="main" class="not-found container">
+    <!-- The end of the story: the cigarette, out, on the floor. No orange light on this page. -->
+    <img class="not-found__scene" src="/media/footer/last.webp" width="704" height="400" alt="" />
+
+    <section class="not-found__block" lang="en">
+      <h1 class="not-found__title">{en.notFound.title}</h1>
+      <p>{en.notFound.text}</p>
+      <a class="btn" href={homePath('en')}>{en.notFound.cta}</a>
+    </section>
+
+    <section class="not-found__block" lang="es">
+      <h2 class="not-found__title">{es.notFound.title}</h2>
+      <p>{es.notFound.text}</p>
+      <a class="btn" href={homePath('es')}>{es.notFound.cta}</a>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .not-found {
+    display: grid;
+    gap: var(--space-l);
+    align-content: center;
+    justify-items: start;
+    min-height: 100svh;
+    padding-block: var(--space-xl);
+  }
+
+  .not-found__scene {
+    width: min(100%, 520px);
+    height: auto;
+    /* The frame background is slightly darker than the page: lighten makes it disappear */
+    mix-blend-mode: lighten;
+    mask-image: linear-gradient(to bottom, transparent, black 35%), linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    mask-composite: intersect;
+  }
+
+  .not-found__block {
+    display: grid;
+    gap: var(--space-s);
+    justify-items: start;
+  }
+
+  .not-found__block + .not-found__block {
+    padding-top: var(--space-l);
+    border-top: 1px solid var(--blue-600);
+  }
+
+  .not-found__title {
+    font-size: var(--step-3);
+    text-transform: uppercase;
+  }
+
+  p {
+    color: var(--fog-300);
+  }
+</style>

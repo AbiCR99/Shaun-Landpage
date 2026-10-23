@@ -10,9 +10,13 @@ import { languages, useTranslations, type Lang } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
+  /** Overrides the page title (defaults to the site title). */
+  title?: string;
+  /** Pages that shouldn't be indexed (404): no canonical/hreflang, robots noindex. */
+  noindex?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, title, noindex = false } = Astro.props;
 const t = useTranslations(lang);
 const canonical = getAbsoluteLocaleUrl(lang, '');
 const ogLocale = lang === 'es' ? 'es_AR' : 'en_US';
@@ -25,16 +29,26 @@ const ogImage = new URL('/og.png', Astro.site).href;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{t.meta.title}</title>
+    <title>{title ?? t.meta.title}</title>
     <meta name="description" content={t.meta.description} />
     <meta name="theme-color" content="#070D18" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href={unboundedLatin} as="font" type="font/woff2" crossorigin />
 
-    <link rel="canonical" href={canonical} />
-    {Object.keys(languages).map((l) => <link rel="alternate" hreflang={l} href={getAbsoluteLocaleUrl(l, '')} />)}
-    <link rel="alternate" hreflang="x-default" href={getAbsoluteLocaleUrl('en', '')} />
+    {
+      noindex ? (
+        <meta name="robots" content="noindex" />
+      ) : (
+        <>
+          <link rel="canonical" href={canonical} />
+          {Object.keys(languages).map((l) => (
+            <link rel="alternate" hreflang={l} href={getAbsoluteLocaleUrl(l, '')} />
+          ))}
+          <link rel="alternate" hreflang="x-default" href={getAbsoluteLocaleUrl('en', '')} />
+        </>
+      )
+    }
 
     <!-- Open Graph: how the link looks when shared on WhatsApp / Instagram. Image: `npm run og`. -->
     <meta property="og:type" content="website" />

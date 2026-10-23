@@ -82,6 +82,11 @@ export const en = {
     subjectBooking: 'New booking request — shaunnolanh site',
     subjectCollab: 'New collab proposal — shaunnolanh site',
   },
+  notFound: {
+    title: 'The light went out here.',
+    text: "This page doesn't exist, or it burned out.",
+    cta: 'Back to the start',
+  },
   footer: {
     social: 'Social',
     rights: 'All rights reserved.',
