@@ -106,6 +106,48 @@ body::after {
   font-size: var(--step-3);
   text-transform: uppercase;
   letter-spacing: -0.01em;
+  transform-origin: left center;
+}
+
+/* ---------- Titles focus out of the smoke ----------
+   Blurred, dimmer and slightly wider (scaleX instead of letter-spacing, so only transform/opacity/filter
+   animate) until they enter the viewport. Starts at 0.5 opacity so large text still passes 3:1 contrast. */
+@keyframes smoke-focus {
+  from {
+    filter: blur(10px);
+    opacity: 0.5;
+    transform: scaleX(1.04);
+  }
+  to {
+    filter: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .section__title {
+    animation: smoke-focus var(--ease-slow) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+}
+
+/* Fallback (no scroll-driven animations): src/scripts/reveal.ts adds data-reveal, then is-visible */
+.section__title[data-reveal] {
+  filter: blur(10px);
+  opacity: 0.5;
+  transform: scaleX(1.04);
+  transition:
+    filter 1.4s var(--ease-slow),
+    opacity 1.4s var(--ease-slow),
+    transform 1.4s var(--ease-slow);
+}
+
+.section__title[data-reveal].is-visible {
+  filter: none;
+  opacity: 1;
+  transform: none;
 }
 
 .section__lead {
@@ -213,6 +255,18 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Scroll-driven animations ignore the duration override below: switch them off explicitly. */
+  .section__title {
+    animation: none;
+  }
+
+  .section__title[data-reveal] {
+    filter: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
   html {
     scroll-behavior: auto;
   }

@@ -82,7 +82,16 @@ const t = useTranslations(lang);
     line-height: 0.92;
     letter-spacing: -0.02em;
     text-transform: uppercase;
+    transform-origin: left center;
     transition: text-shadow 0.6s var(--ease-slow);
+    /* Comes out of the smoke once on load (keyframes in global.css). Never from opacity 0, so LCP isn't delayed. */
+    animation: smoke-focus 1.6s var(--ease-slow) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__title {
+      animation: none;
+    }
   }
 
   /* Chromatic aberration: only on the name, only on hover */

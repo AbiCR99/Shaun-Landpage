@@ -88,5 +88,9 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
   <body>
     <a class="skip-link" href="#main">{t.skipLink}</a>
     <slot />
+    <script>
+      import { revealFallback } from '../scripts/reveal';
+      revealFallback('.section__title');
+    </script>
   </body>
 </html>
