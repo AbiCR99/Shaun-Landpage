@@ -79,6 +79,68 @@ const fields: Field[] =
 </form>
 
 <script>
+  // A brief spark burst from the submit button on success: momentary feedback, not a lasting light.
+  // A temporary fixed canvas over the button (no layout impact), removed after ~700ms.
+  function sparkBurst(origin: HTMLElement) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = origin.getBoundingClientRect();
+    const size = { w: 260, h: 180 };
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('aria-hidden', 'true');
+    canvas.width = size.w * dpr;
+    canvas.height = size.h * dpr;
+    Object.assign(canvas.style, {
+      position: 'fixed',
+      left: `${rect.left + rect.width / 2 - size.w / 2}px`,
+      // Centered on the button's top edge, so the sparks fly over the page, not over the orange button
+      top: `${rect.top - size.h / 2}px`,
+      width: `${size.w}px`,
+      height: `${size.h}px`,
+      pointerEvents: 'none',
+      zIndex: '60',
+    });
+    document.body.append(canvas);
+    const ctx = canvas.getContext('2d')!;
+    ctx.scale(dpr, dpr);
+
+    const root = getComputedStyle(document.documentElement);
+    const colors = [root.getPropertyValue('--glow-400').trim(), root.getPropertyValue('--ember-600').trim()];
+    // 12 sparks, mostly upwards, slightly random
+    const sparks = Array.from({ length: 12 }, (_, i) => {
+      const angle = -Math.PI / 2 + (i / 11 - 0.5) * Math.PI * 1.1 + (Math.random() - 0.5) * 0.3;
+      const speed = 140 + Math.random() * 130;
+      return { x: size.w / 2, y: size.h / 2, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color: colors[i % 2] };
+    });
+
+    const duration = 700;
+    let start: number | null = null;
+    let last = 0;
+    const frame = (now: number) => {
+      start ??= now;
+      const t = now - start;
+      const dt = last ? (now - last) / 1000 : 0;
+      last = now;
+      ctx.clearRect(0, 0, size.w, size.h);
+      const life = 1 - t / duration;
+      for (const s of sparks) {
+        s.vy += 260 * dt; // gravity
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        ctx.globalAlpha = Math.max(0, life);
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(s.x - s.vx * 0.05, s.y - s.vy * 0.05); // short streak, like the footer sparks
+        ctx.stroke();
+      }
+      if (t < duration) requestAnimationFrame(frame);
+      else canvas.remove();
+    };
+    requestAnimationFrame(frame);
+  }
+
   document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
     const status = form.querySelector<HTMLElement>('.form__status')!;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
@@ -97,6 +159,7 @@ const fields: Field[] =
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.message);
         status.textContent = form.dataset.success!;
+        sparkBurst(button);
         form.reset();
       } catch {
         status.textContent = form.dataset.error!;
