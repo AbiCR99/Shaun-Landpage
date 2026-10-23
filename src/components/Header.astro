@@ -45,7 +45,7 @@ const links = [
 </header>
 
 <script>
-  // Mobile menu: the only JS in the header. Without JS the nav is still reachable
+  // Mobile menu, active section and hide-on-scroll. Without JS the nav is still reachable
   // because the anchors still work and the footer repeats the language switch.
   const header = document.querySelector<HTMLElement>('.header');
   const toggle = header?.querySelector<HTMLButtonElement>('.header__toggle');
@@ -71,6 +71,62 @@ const links = [
         toggle.focus();
       }
     });
+
+    // Active section: the link of the section crossing the middle of the viewport gets aria-current.
+    const links = new Map(
+      [...nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')].map((a) => [a.hash.slice(1), a]),
+    );
+    const sections = [...links.keys()].flatMap((id) => document.getElementById(id) ?? []);
+    if ('IntersectionObserver' in window) {
+      // Sections touching a thin band around the middle of the viewport. If two touch it at a boundary,
+      // the later one in the page wins (it's the one being scrolled into), so only one link is ever marked.
+      const inBand = new Set<Element>();
+      const sectionObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) inBand.add(entry.target);
+            else inBand.delete(entry.target);
+          }
+          const active = sections.filter((section) => inBand.has(section)).at(-1);
+          for (const section of sections) {
+            const link = links.get(section.id);
+            if (section === active) link?.setAttribute('aria-current', 'true');
+            else link?.removeAttribute('aria-current');
+          }
+        },
+        { rootMargin: '-47% 0px -52% 0px' },
+      );
+      sections.forEach((section) => sectionObserver.observe(section));
+    }
+
+    // Hide on scroll down, show on scroll up, only past the hero. Never while the mobile menu is open,
+    // while focus is inside the header, or with reduced motion.
+    const hero = document.querySelector<HTMLElement>('.hero');
+    if (hero && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      let lastY = window.scrollY;
+      let ticking = false;
+      const update = () => {
+        ticking = false;
+        const y = window.scrollY;
+        const pastHero = y > hero.offsetTop + hero.offsetHeight;
+        const locked = header.hasAttribute('data-open') || header.matches(':focus-within');
+        if (!pastHero || locked || y < lastY - 4) header.removeAttribute('data-hidden');
+        else if (y > lastY + 4) header.setAttribute('data-hidden', '');
+        lastY = y;
+      };
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        },
+        { passive: true },
+      );
+      // Tabbing into a hidden header brings it back
+      header.addEventListener('focusin', () => header.removeAttribute('data-hidden'));
+    }
   }
 </script>
 
@@ -83,6 +139,11 @@ const links = [
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid color-mix(in srgb, var(--blue-600) 35%, transparent);
+    transition: transform 0.5s var(--ease-slow);
+  }
+
+  .header[data-hidden] {
+    transform: translateY(-100%);
   }
 
   .header__bar {
@@ -119,8 +180,38 @@ const links = [
     transition: color 0.3s var(--ease-slow);
   }
 
-  .header__nav a:hover {
+  .header__nav a:hover,
+  .header__nav a[aria-current='true'] {
     color: var(--moon-100);
+  }
+
+  /* Active section: a thin --blue-400 line under the link (not orange: the light stays in the content) */
+  .header__nav a {
+    position: relative;
+  }
+
+  .header__nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.4rem;
+    height: 1px;
+    background: var(--blue-400);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.5s var(--ease-slow);
+  }
+
+  .header__nav a[aria-current='true']::after {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header,
+    .header__nav a::after {
+      transition: none;
+    }
   }
 
   .header__tools {
