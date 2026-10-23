@@ -6,6 +6,7 @@ export const es: Dictionary = {
     title: 'Shaun Nolanh — Productor y DJ de progressive house',
     description:
       'Productor y DJ de progressive house de Córdoba, Argentina. Música, sets de Radio Silence, booking y colaboraciones.',
+    ogImageAlt: 'Una mano dibujada con trazo fino sostiene un cigarrillo encendido, junto al nombre Shaun Nolanh, sobre un fondo azul noche.',
   },
   skipLink: 'Ir al contenido',
   nav: {

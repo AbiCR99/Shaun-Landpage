@@ -6,6 +6,7 @@ export const en = {
     title: 'Shaun Nolanh — Progressive house producer & DJ',
     description:
       'Progressive house producer and DJ from Córdoba, Argentina. Music, Radio Silence sets, booking and collaborations.',
+    ogImageAlt: 'A line-drawn hand holding a lit cigarette, next to the name Shaun Nolanh on a night-blue background.',
   },
   skipLink: 'Skip to content',
   nav: {
