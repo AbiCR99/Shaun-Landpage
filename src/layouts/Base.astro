@@ -7,6 +7,7 @@ import '../styles/global.css';
 import unboundedLatin from '@fontsource-variable/unbounded/files/unbounded-latin-wght-normal.woff2?url';
 import { getAbsoluteLocaleUrl } from 'astro:i18n';
 import { languages, useTranslations, type Lang } from '../i18n/utils';
+import { site as siteData, socials } from '../data/site';
 
 interface Props {
   lang: Lang;
@@ -22,6 +23,25 @@ const canonical = getAbsoluteLocaleUrl(lang, '');
 const ogLocale = lang === 'es' ? 'es_AR' : 'en_US';
 // Absolute URL: WhatsApp, Instagram and others ignore relative og:image paths.
 const ogImage = new URL('/og.png', Astro.site).href;
+
+// Structured data for search engines. MusicGroup (not Person): schema.org defines it for solo
+// musicians too, and it has `genre`. Only confirmed facts: no releases, supports or anything "TO CONFIRM".
+const sameAs = socials.flatMap((s) => (s.url ? [s.url] : []));
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'MusicGroup',
+  name: siteData.name,
+  url: getAbsoluteLocaleUrl('en', ''),
+  description: t.meta.description,
+  genre: 'Progressive house',
+  location: {
+    '@type': 'Place',
+    address: { '@type': 'PostalAddress', addressLocality: 'La Falda', addressRegion: 'Córdoba', addressCountry: 'AR' },
+  },
+  ...(sameAs.length > 0 && { sameAs }),
+};
+// Escape "<" so the JSON can never close the <script> tag early.
+const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
 ---
 
 <!doctype html>
@@ -63,6 +83,7 @@ const ogImage = new URL('/og.png', Astro.site).href;
     <meta property="og:image:alt" content={t.meta.ogImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content={ogImage} />
+    {!noindex && <script type="application/ld+json" set:html={jsonLd} />}
   </head>
   <body>
     <a class="skip-link" href="#main">{t.skipLink}</a>
