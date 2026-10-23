@@ -101,9 +101,43 @@ const title = embed.title ?? `${providerName} player`;
   }
 
   .embed__play--glow .embed__icon {
+    position: relative;
+    isolation: isolate;
     border-color: var(--glow-500);
     background: var(--glow-500);
     color: var(--night-950);
+  }
+
+  /* The ember breathes: a slow radial glow around the play button (only while it holds the light) */
+  .embed__play--glow .embed__icon::before {
+    content: '';
+    position: absolute;
+    inset: -45%;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--glow-400) 55%, transparent) 30%, transparent 70%);
+    pointer-events: none;
+    /* ease-in-out, not --ease-slow: an ease-out curve on a back-and-forth loop jumps and then holds */
+    animation: ember-breathe 2.5s ease-in-out infinite alternate;
+  }
+
+  /* 2.5s each way = one 5s breath */
+  @keyframes ember-breathe {
+    from {
+      opacity: 0.3;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 0.85;
+      transform: scale(1.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .embed__play--glow .embed__icon::before {
+      animation: none;
+      opacity: 0.6;
+    }
   }
 
   .embed__play:hover .embed__icon {
