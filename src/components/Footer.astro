@@ -61,15 +61,22 @@ const year = new Date().getFullYear();
   // Plays the landing once when ~40% of the footer is visible. With no `loop`,
   // the video stays on its last frame: the cigarette, out, on the floor.
   const footer = document.querySelector<HTMLElement>('.footer');
+  const scene = footer?.querySelector<HTMLElement>('.footer__scene');
   const video = footer?.querySelector<HTMLVideoElement>('.footer__video');
 
-  if (footer && video && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (footer && scene && video && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // If the video can't play (iOS Low Power Mode rejects play(), or the file fails),
+    // show the end of the story instead of the poster frozen mid-air.
+    const showLastFrame = () => scene.setAttribute('data-fallback', '');
+    video.addEventListener('error', showLastFrame);
+    video.querySelector('source')?.addEventListener('error', showLastFrame);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
         observer.disconnect();
         video.preload = 'auto';
-        video.play().catch(() => {});
+        video.play().catch(showLastFrame);
       },
       { threshold: 0.4 },
     );
@@ -110,6 +117,15 @@ const year = new Date().getFullYear();
 
   .footer__still {
     display: none;
+  }
+
+  /* Playback failed: same end state as reduced motion */
+  .footer__scene[data-fallback] .footer__video {
+    display: none;
+  }
+
+  .footer__scene[data-fallback] .footer__still {
+    display: block;
   }
 
   @media (prefers-reduced-motion: reduce) {
