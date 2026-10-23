@@ -28,8 +28,8 @@ const t = useTranslations(lang);
     <h3 class="music__subtitle">{t.music.releases}</h3>
     <ul class="releases">
       {
-        releases.map((r) => (
-          <li class="release">
+        releases.map((r, i) => (
+          <li class="release" style={`--i: ${i}`}>
             <div class="release__main">
               <p class="release__title">
                 {r.title ?? <span class="pending">[RELEASE PENDIENTE]</span>}
@@ -48,6 +48,12 @@ const t = useTranslations(lang);
     </ul>
   </div>
 </section>
+
+<script>
+  // Time-based cascade, so it runs on IntersectionObserver in every browser (scroll timelines have no milliseconds).
+  import { reveal } from '../scripts/reveal';
+  reveal('.release');
+</script>
 
 <style>
   /* Anchor for the decorative scene. No `isolation` here: the scene blends with the page itself (see MusicScene). */
@@ -79,10 +85,52 @@ const t = useTranslations(lang);
   }
 
   .release {
+    position: relative;
     display: grid;
     gap: var(--space-xs);
     padding-block: var(--space-m);
     border-bottom: 1px solid var(--blue-600);
+  }
+
+  /* Cascade: hidden only once JS has added data-reveal; 80ms between rows, capped at 400ms */
+  .release[data-reveal] {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  /* The transition lives on the visible state: hiding is instant (no fade-out on load), showing is animated */
+  .release[data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.9s var(--ease-slow),
+      transform 0.9s var(--ease-slow);
+    transition-delay: min(calc(var(--i) * 80ms), 400ms);
+  }
+
+  /* A --blue-400 line draws itself left to right under the row on hover / keyboard focus inside it */
+  .release::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--blue-400);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s var(--ease-slow);
+  }
+
+  .release:hover::after,
+  .release:focus-within::after {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .release::after {
+      transition: none;
+    }
   }
 
   .release__title {
