@@ -53,7 +53,9 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 
 ## Embeds, formularios y email
 
-- **Embeds** (`Embed.astro`): son fachadas que cargan al hacer clic. El iframe de SoundCloud o Spotify se crea recién en el clic, así que el HTML inicial tiene que tener cero iframes. `src` es la URL completa del iframe, tomada de Share → Embed de cada plataforma.
+- **Embeds** (`Embed.astro`): son fachadas que cargan al hacer clic. El iframe de SoundCloud, Spotify o Mixcloud se crea recién en el clic, así que el HTML inicial tiene que tener cero iframes.
+  - En `src/data/music.ts` se pega en `link` el link normal del track/set (Compartir → Copiar link), el `src` del iframe o el `<iframe>` completo. `toEmbed` (`src/data/embed.ts`) detecta la plataforma, arma la URL del reproductor y su altura.
+  - Links cortos (`on.soundcloud.com`, `spotify.link`) o desconocidos frenan el build con un mensaje: hay que pegar la URL larga.
 - **Formularios** (`ContactForm.astro`, `variant: 'booking' | 'collab'`): envían por POST a Web3Forms.
   - La key sale de `PUBLIC_WEB3FORMS_KEY` (ver `.env.example`). Sin la key, el botón de enviar queda deshabilitado y se muestra un marcador pendiente.
   - El honeypot es el campo oculto `botcheck`.

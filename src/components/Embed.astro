@@ -1,7 +1,8 @@
 ---
 // "Facade" player: shows a lightweight button and only loads the real
-// SoundCloud/Spotify iframe after the visitor clicks. Zero third-party weight on first load.
+// SoundCloud/Spotify/Mixcloud iframe after the visitor clicks. Zero third-party weight on first load.
 import type { Embed } from '../data/music';
+import { toEmbed } from '../data/embed';
 import { useTranslations, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -13,27 +14,28 @@ interface Props {
 
 const { embed, lang, glow = false } = Astro.props;
 const t = useTranslations(lang);
-const providerName = embed.provider === 'spotify' ? 'Spotify' : 'SoundCloud';
-const height = embed.provider === 'spotify' ? 152 : 166;
-const title = embed.title ?? `${providerName} player`;
+// Whatever was pasted in `link` becomes { provider, src, height }; unknown links stop the build.
+const player = embed.link ? toEmbed(embed.link) : null;
+const height = player?.height ?? 166;
+const title = embed.title ?? `${player?.name ?? ''} player`.trim();
 ---
 
-<div class="embed" style={`--embed-h: ${height}px`} data-embed-src={embed.src ?? undefined} data-embed-title={title} data-embed-provider={embed.provider}>
+<div class="embed" style={`--embed-h: ${height}px`} data-embed-src={player?.src} data-embed-title={title} data-embed-provider={player?.provider}>
   {
-    embed.src ? (
+    player ? (
       <button class:list={['embed__play', glow && 'embed__play--glow']} type="button">
         <span class="embed__icon" aria-hidden="true">
           <svg width="14" height="14" viewBox="0 0 12 12"><path d="M2 1l9 5-9 5z" fill="currentColor" /></svg>
         </span>
         <span class="embed__text">
           <span class="embed__title">{embed.title ?? t.embed.play}</span>
-          <span class="mono embed__note">{t.embed.loadNotice} {providerName}</span>
+          <span class="mono embed__note">{t.embed.loadNotice} {player.name}</span>
         </span>
         <span class="visually-hidden">{t.embed.play}</span>
       </button>
     ) : (
       <p class="embed__pending">
-        <span class="pending">[EMBED PENDIENTE · {providerName}]</span>
+        <span class="pending">[EMBED PENDIENTE]</span>
       </p>
     )
   }
@@ -45,7 +47,9 @@ const title = embed.title ?? `${providerName} player`;
       'click',
       () => {
         const src = new URL(el.dataset.embedSrc!);
+        // Start playing right away (the click already was the intent). Spotify doesn't allow it.
         if (el.dataset.embedProvider === 'soundcloud') src.searchParams.set('auto_play', 'true');
+        if (el.dataset.embedProvider === 'mixcloud') src.searchParams.set('autoplay', '1');
 
         const iframe = document.createElement('iframe');
         iframe.src = src.toString();

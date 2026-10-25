@@ -1,12 +1,17 @@
 // Music data. Don't invent anything: if a field isn't confirmed, leave it `null`
 // and the site shows a placeholder.
-
-export type Provider = 'soundcloud' | 'spotify';
+//
+// CÓMO CARGAR UN TRACK O UN SET (featured y sets):
+//   En SoundCloud, Spotify o Mixcloud: Compartir → Copiar link, y pegalo en `link`, entre comillas.
+//   También sirve pegar el código <iframe …> de "Embed" completo. La plataforma se detecta sola.
+//   Ejemplo: link: 'https://soundcloud.com/shaunnolanhmusic/nombre-del-track',
+//   No uses links cortos (on.soundcloud.com, spotify.link): abrilos en el navegador y copiá la URL larga.
+//   Si el link no se reconoce, `npm run build` frena y explica qué falta (ver src/data/embed.ts).
 
 export type Embed = {
-  provider: Provider;
-  /** Full iframe `src` copied from the platform's "Share → Embed" dialog. */
-  src: string | null;
+  /** Track/set link, iframe src or full <iframe> code. `null` = pending. */
+  link: string | null;
+  /** Shown on the play button. `null` = generic "Play". */
   title: string | null;
 };
 
@@ -20,7 +25,7 @@ export type Release = {
   url?: string | null;
 };
 
-export const featured: Embed = { provider: 'soundcloud', src: null, title: null };
+export const featured: Embed = { link: null, title: null };
 
 export const releases: Release[] = [
   // TO CONFIRM with the artist: title of the remix, label and year.
@@ -40,7 +45,7 @@ export type DjSet = Embed & { date: string | null; venue: string | null };
 
 // Radio Silence: 2–3 featured sets. The first one is the section's "light source".
 export const sets: DjSet[] = [
-  { provider: 'soundcloud', src: null, title: null, date: null, venue: null },
-  { provider: 'soundcloud', src: null, title: null, date: null, venue: null },
-  { provider: 'soundcloud', src: null, title: null, date: null, venue: null },
+  { link: null, title: null, date: null, venue: null },
+  { link: null, title: null, date: null, venue: null },
+  { link: null, title: null, date: null, venue: null },
 ];
