@@ -11,7 +11,7 @@ export const site = {
 export type SocialLink = { name: string; url: string | null };
 
 export const socials: SocialLink[] = [
-  { name: 'SoundCloud', url: null },
+  { name: 'SoundCloud', url: 'https://soundcloud.com/shaunnolanhmusic' },
   { name: 'Spotify', url: null },
   { name: 'Beatport', url: null },
   { name: 'Instagram', url: null },
