@@ -1,8 +1,29 @@
 // Turns whatever gets pasted into `link` (src/data/music.ts) into a player the facade can load:
-// a normal SoundCloud / Spotify / Mixcloud link, the iframe `src`, or the whole `<iframe …>` embed code.
+// a normal Beatport / SoundCloud / Spotify / Mixcloud link, the iframe `src`, or the whole `<iframe …>` code.
 // Runs at build time: an unknown or short link stops the build with a clear message.
+import tokens from '../styles/tokens.css?raw';
 
-export type Provider = 'soundcloud' | 'spotify' | 'mixcloud';
+export type Provider = 'beatport' | 'soundcloud' | 'spotify' | 'mixcloud';
+
+// SoundCloud's accent color (play button, waveform) = the site's light. Read from the tokens,
+// so the palette keeps a single source of truth and no hex lives outside tokens.css.
+const GLOW = tokens.match(/--glow-500:\s*(#[0-9a-fA-F]{6})/)?.[1];
+if (!GLOW) throw new Error('[embed] --glow-500 not found in src/styles/tokens.css');
+
+/** Dark "visual" player (cover art as background) with the site's orange accent. */
+function soundcloudPlayer(trackUrl: string): Player {
+  const params = new URLSearchParams({
+    url: trackUrl,
+    color: GLOW!,
+    visual: 'true',
+    hide_related: 'true',
+    show_comments: 'false',
+    show_user: 'false',
+    show_reposts: 'false',
+    show_teaser: 'false',
+  });
+  return { provider: 'soundcloud', name: 'SoundCloud', src: `https://w.soundcloud.com/player/?${params}`, height: 300 };
+}
 
 export type Player = {
   provider: Provider;
@@ -32,12 +53,22 @@ export function toEmbed(input: string): Player {
     );
   }
 
-  // SoundCloud: the widget URL as is, or a track/set page wrapped in the widget
-  if (host === 'w.soundcloud.com') return { provider: 'soundcloud', name: 'SoundCloud', src: url.href, height: 166 };
+  // Beatport: the embed URL as is, or a track page (beatport.com/track/<slug>/<id>) turned into one
+  if (host === 'embed.beatport.com' && url.searchParams.get('id')) {
+    return { provider: 'beatport', name: 'Beatport', src: url.href, height: 162 };
+  }
+  if (host === 'beatport.com') {
+    const id = url.pathname.match(/^\/track\/[^/]+\/(\d+)/)?.[1];
+    if (id) return { provider: 'beatport', name: 'Beatport', src: `https://embed.beatport.com/?id=${id}&type=track`, height: 162 };
+  }
+
+  // SoundCloud: a pasted widget keeps its track but gets our parameters; a track/set page is wrapped
+  if (host === 'w.soundcloud.com') {
+    const track = url.searchParams.get('url');
+    if (track) return soundcloudPlayer(track);
+  }
   if (host === 'soundcloud.com' || host === 'm.soundcloud.com') {
-    const page = `https://soundcloud.com${url.pathname.replace(/\/$/, '')}`;
-    const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(page)}&visual=false&show_comments=false`;
-    return { provider: 'soundcloud', name: 'SoundCloud', src, height: 166 };
+    return soundcloudPlayer(`https://soundcloud.com${url.pathname.replace(/\/$/, '')}`);
   }
 
   // Spotify: open.spotify.com/(intl-xx/)(embed/)<type>/<id>
@@ -58,7 +89,7 @@ export function toEmbed(input: string): Player {
     return { provider: 'mixcloud', name: 'Mixcloud', src, height: 120 };
   }
 
-  throw new Error(`[embed] Unsupported link "${raw}". Use a SoundCloud, Spotify or Mixcloud link.`);
+  throw new Error(`[embed] Unsupported link "${raw}". Use a Beatport, SoundCloud, Spotify or Mixcloud link.`);
 }
 
 /** Accepts a bare URL or a pasted `<iframe src="…">` and returns the URL. */
