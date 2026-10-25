@@ -49,6 +49,23 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      The page tells a story top to bottom (the hand drops the cigarette in Music, it lands in the footer),
+      so a reload or back/forward starts at the top instead of mid-story. Inline and first in <head>:
+      it has to run before the browser restores the old scroll position. A fresh link to /#section is
+      a normal navigation and still lands on its section; pages restored from the bfcache don't rerun this.
+    -->
+    <script is:inline>
+      (() => {
+        if (!('scrollRestoration' in history)) return;
+        history.scrollRestoration = 'manual';
+        const nav = performance.getEntriesByType('navigation')[0];
+        if (nav && (nav.type === 'reload' || nav.type === 'back_forward')) {
+          if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
+          window.scrollTo(0, 0);
+        }
+      })();
+    </script>
     <title>{title ?? t.meta.title}</title>
     <meta name="description" content={t.meta.description} />
     <meta name="theme-color" content="#070D18" />

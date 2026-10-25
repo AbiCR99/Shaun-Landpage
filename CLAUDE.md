@@ -12,6 +12,7 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 - `src/pages/index.astro` y `src/pages/es/index.astro` renderizan `src/components/HomePage.astro` y solo le pasan el prop `lang`.
 - Cada sección recibe `lang` y llama a `useTranslations(lang)` (`src/i18n/utils.ts`). El ruteo usa el i18n nativo de Astro (`prefixDefaultLocale: false`). `Base.astro` emite el canonical y los `hreflang`.
 - JS mínimo, en un `<script>` inline chico dentro de cada componente: menú mobile, carga de embeds, envío de formularios y email ofuscado. La bio larga usa `<details>`, sin JS.
+- Al recargar o volver con atrás/adelante, la página arranca arriba (script `is:inline` al principio del `<head>` en `Base.astro`): la historia de la mano se lee de arriba abajo. Un link nuevo con `#sección` se respeta y la bfcache no se toca.
 
 ## Convenciones
 
