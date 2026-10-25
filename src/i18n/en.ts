@@ -27,11 +27,13 @@ export const en = {
   },
   music: {
     title: 'Music',
-    lead: 'The latest release first. Releases and remixes below.',
+    lead: 'Three picks first. Releases and remixes below.',
     featured: 'Featured',
     releases: 'Releases & remixes',
     remix: 'Remix',
     upcoming: 'Upcoming',
+    onBeatport: 'on Beatport',
+    allOnBeatport: 'All tracks on Beatport',
   },
   embed: {
     play: 'Play',

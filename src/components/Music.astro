@@ -1,7 +1,7 @@
 ---
 import Embed from './Embed.astro';
 import MusicScene from './MusicScene.astro';
-import { featured, releases } from '../data/music';
+import { beatportProfile, featured, releases } from '../data/music';
 import { useTranslations, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -22,7 +22,8 @@ const t = useTranslations(lang);
 
     <div class="music__featured">
       <p class="pill">{t.music.featured}</p>
-      <Embed embed={featured} lang={lang} glow />
+      <!-- Only the first one holds the light (the hand's ember passes to it, see MusicScene) -->
+      {featured.map((embed, i) => <Embed embed={embed} lang={lang} glow={i === 0} />)}
     </div>
 
     <h3 class="music__subtitle">{t.music.releases}</h3>
@@ -32,7 +33,14 @@ const t = useTranslations(lang);
           <li class="release" style={`--i: ${i}`}>
             <div class="release__main">
               <p class="release__title">
-                {r.title ?? <span class="pending">[RELEASE PENDIENTE]</span>}
+                {r.title && r.url ? (
+                  <a href={r.url} target="_blank" rel="noopener">
+                    {r.title}
+                    <span class="visually-hidden"> {t.music.onBeatport}</span>
+                  </a>
+                ) : (
+                  (r.title ?? <span class="pending">[RELEASE PENDIENTE]</span>)
+                )}
               </p>
               <p class="release__artists">{r.artists ?? <span class="pending">[ARTISTAS PENDIENTES]</span>}</p>
             </div>
@@ -46,6 +54,9 @@ const t = useTranslations(lang);
         ))
       }
     </ul>
+    <a class="releases__all mono" href={beatportProfile} target="_blank" rel="noopener">
+      {t.music.allOnBeatport} <span aria-hidden="true">↗</span>
+    </a>
   </div>
 </section>
 
@@ -135,6 +146,27 @@ const t = useTranslations(lang);
 
   .release__title {
     font-weight: 700;
+  }
+
+  .release__title a {
+    text-decoration: none;
+  }
+
+  .release__title a:hover {
+    color: var(--moon-100);
+  }
+
+  .releases__all {
+    display: inline-block;
+    margin-top: var(--space-m);
+    padding-block: 0.5rem;
+    color: var(--fog-300);
+    text-transform: uppercase;
+    text-underline-offset: 0.25em;
+  }
+
+  .releases__all:hover {
+    color: var(--moon-100);
   }
 
   .release__artists {

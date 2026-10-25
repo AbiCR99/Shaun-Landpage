@@ -13,7 +13,7 @@ export type SocialLink = { name: string; url: string | null };
 export const socials: SocialLink[] = [
   { name: 'SoundCloud', url: 'https://soundcloud.com/shaunnolanhmusic' },
   { name: 'Spotify', url: null },
-  { name: 'Beatport', url: null },
+  { name: 'Beatport', url: 'https://www.beatport.com/artist/shaun-nolanh/1291888' },
   { name: 'Instagram', url: null },
   { name: 'Resident Advisor', url: null },
   { name: 'Mixcloud', url: null },

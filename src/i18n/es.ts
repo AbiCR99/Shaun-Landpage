@@ -27,11 +27,13 @@ export const es: Dictionary = {
   },
   music: {
     title: 'Música',
-    lead: 'Arriba, lo último que salió. Abajo, releases y remixes.',
+    lead: 'Arriba, tres elegidos. Abajo, releases y remixes.',
     featured: 'Destacado',
     releases: 'Releases y remixes',
     remix: 'Remix',
     upcoming: 'Próximamente',
+    onBeatport: 'en Beatport',
+    allOnBeatport: 'Todos los tracks en Beatport',
   },
   embed: {
     play: 'Reproducir',
