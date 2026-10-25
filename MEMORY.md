@@ -8,7 +8,8 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resumí o borrá lo qu
 - Video de Google Flow (2026-10-21): escena atada al scroll al lado de MUSIC + footer que se reproduce una vez.
 - 2026-10-23, revisión completa (14 commits, sin push): fallback del footer en iOS, glow del hero azul, `SITE_URL`, OG + apple-touch-icon (`npm run og`), 404 bilingüe, sitemap/robots, JSON-LD `MusicGroup`, y 7 animaciones (títulos del humo, brasa que respira, señal de Radio Silence, cascada de releases, chispa al enviar, fundido de idioma, header que se oculta + sección activa).
 - 2026-10-25: embeds listos para pegar (`link` en `music.ts` acepta link normal / src / `<iframe>` de SoundCloud, Spotify o Mixcloud; ver `src/data/embed.ts`), SoundCloud del artista en redes (`soundcloud.com/shaunnolanhmusic`), y arranque arriba al recargar/volver.
-- Faltan datos reales del artista (marcadores `[PENDIENTE]`); el destacado y los 3 sets los pega el equipo.
+- 2026-10-25 (tarde): música real. 3 destacados de Beatport elegidos por el artista (Case 701, Through the Loss, Innocent Spt), releases desde su lista de Beatport (primera edición de cada tema), primer set de Radio Silence (SoundCloud "Best Warm Up"), Beatport en redes.
+- Faltan: sets 2 y 3, fecha/lugar del set 1, bios, fotos, email, press kit, key de Web3Forms, Spotify/Instagram/RA/Mixcloud.
 
 ## Decisiones (y por qué)
 
@@ -22,6 +23,8 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resumí o borrá lo qu
 - **OG con el Chrome headless instalado** (a ≥ 500 px el viewport es exacto), sin sumar `puppeteer-core` al proyecto.
 - **MusicGroup, no Person:** schema.org lo admite para solistas y tiene `genre`.
 - **El equipo pega los embeds** (eligen el contenido); el código detecta la plataforma. Links cortos frenan el build: no se pueden resolver sin red.
+- **Beatport bloquea bots (Cloudflare)**: no se lee beatport.com; los datos vinieron pegados por el equipo. *Through the Loss*: el embed usa la edición `29208623` y el link de la fila la `22465564` (mismo tema, otra edición).
+- **SoundCloud en modo visual** (oscuro, portada) con acento de `tokens.css`: el clásico es blanco y no se puede oscurecer.
 - **Arriba al recargar / atrás-adelante** (`scrollRestoration = 'manual'`, inline en `<head>`): la escena de Music se veía rara a mitad. Links con `#sección` y bfcache se respetan.
 
 ## Aprendizajes y errores a evitar
@@ -41,6 +44,7 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resumí o borrá lo qu
 - [ ] Push de los commits locales (cuando se pida) y deploy de preview en Vercel desde la web.
 - [ ] **Cuando llegue el dominio real:** Vercel → Settings → Environment Variables → `SITE_URL=https://<dominio>` (sin barra final) y redeploy. Canonical, hreflang, `og:image`, sitemap, robots y JSON-LD salen de `site`. Hasta entonces Vercel usa `VERCEL_PROJECT_PRODUCTION_URL`; local, `localhost:4321`.
 - [ ] Probar en iPhone real: escena, footer con Ahorro de batería, fundido de idioma.
-- [ ] Embeds: el equipo pega el destacado y los sets (candidatos públicos encontrados: *Chrome Butterflies* y *Magnetic Bloom*, en soundcloud.com/3rdavenue). El reproductor clásico de SoundCloud es blanco: decidir si se usa `visual=true` u otro.
+- [ ] Sets 2 y 3 de Radio Silence: pegar su embed en `sets` cuando existan.
+- [ ] Links de Beatport por fila: solo hay IDs de Case 701, Through the Loss e Innocent Spt; el resto lleva al perfil.
 - [ ] Datos del artista: resto de las redes (llenan `sameAs`), bios, fotos, releases, email de booking, press kit, key de Web3Forms.
 - [ ] Si se extiende el video en Flow: `npm run media`, revisar `EXIT_FRAME` y `npm run og`.

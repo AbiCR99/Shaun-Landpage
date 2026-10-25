@@ -54,8 +54,11 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 
 ## Embeds, formularios y email
 
-- **Embeds** (`Embed.astro`): son fachadas que cargan al hacer clic. El iframe de SoundCloud, Spotify o Mixcloud se crea recién en el clic, así que el HTML inicial tiene que tener cero iframes.
-  - En `src/data/music.ts` se pega en `link` el link normal del track/set (Compartir → Copiar link), el `src` del iframe o el `<iframe>` completo. `toEmbed` (`src/data/embed.ts`) detecta la plataforma, arma la URL del reproductor y su altura.
+- **Embeds** (`Embed.astro`): son fachadas que cargan al hacer clic. El iframe de Beatport, SoundCloud, Spotify o Mixcloud se crea recién en el clic, así que el HTML inicial tiene que tener cero iframes.
+  - Los 3 destacados de Music son reproductores de Beatport elegidos por el artista (`featured` es un array; solo el primero lleva `glow`). Los releases salen de su lista de Beatport.
+  - SoundCloud se normaliza al modo `visual` (oscuro) con el acento leído de `--glow-500` en `tokens.css`.
+  - Beatport bloquea el acceso automático: los datos los pega el equipo (código Embed o lista de tracks); no intentar leer beatport.com.
+  - En `src/data/music.ts` se pega en `link` el link normal del track/set (en Beatport, la página del track o su código Embed) (Compartir → Copiar link), el `src` del iframe o el `<iframe>` completo. `toEmbed` (`src/data/embed.ts`) detecta la plataforma, arma la URL del reproductor y su altura.
   - Links cortos (`on.soundcloud.com`, `spotify.link`) o desconocidos frenan el build con un mensaje: hay que pegar la URL larga.
 - **Formularios** (`ContactForm.astro`, `variant: 'booking' | 'collab'`): envían por POST a Web3Forms.
   - La key sale de `PUBLIC_WEB3FORMS_KEY` (ver `.env.example`). Sin la key, el botón de enviar queda deshabilitado y se muestra un marcador pendiente.
