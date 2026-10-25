@@ -1,9 +1,10 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 // Vite ships with Astro; loadEnv reads .env files, which Astro doesn't expose to this config by itself.
+// With an empty prefix it also includes every process.env variable (e.g. Vercel's), which take precedence.
 import { loadEnv } from 'vite';
 
-const env = { ...process.env, ...loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '') };
+const env = loadEnv('production', new URL('.', import.meta.url).pathname, '');
 
 // The public URL of the site, used for canonical, hreflang, Open Graph, sitemap and robots.
 // 1. SITE_URL: set it when the real domain exists (in .env locally, in Vercel → Settings → Environment Variables).
