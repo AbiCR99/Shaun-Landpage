@@ -41,7 +41,7 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resumí o borrá lo qu
 
 ## Pendientes
 
-- [ ] Push de los commits locales (cuando se pida) y deploy de preview en Vercel desde la web.
+- [ ] Deploy de preview en Vercel desde la web (todo subido a GitHub el 2026-10-26, `fc858fd`).
 - [ ] **Cuando llegue el dominio real:** Vercel → Settings → Environment Variables → `SITE_URL=https://<dominio>` (sin barra final) y redeploy. Canonical, hreflang, `og:image`, sitemap, robots y JSON-LD salen de `site`. Hasta entonces Vercel usa `VERCEL_PROJECT_PRODUCTION_URL`; local, `localhost:4321`.
 - [ ] Probar en iPhone real: escena, footer con Ahorro de batería, fundido de idioma.
 - [ ] Sets 2 y 3 de Radio Silence: pegar su embed en `sets` cuando existan.
