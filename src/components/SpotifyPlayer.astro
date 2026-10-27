@@ -1,0 +1,194 @@
+---
+// One Spotify player under the carousel, driven by the Spotify iFrame API.
+// Zero Spotify weight on page load: the API script is injected on the first interaction
+// (click on the facade, or the first time the visitor changes cover). Then:
+//   createController(...) once, and on every `track:change` → loadEntity(url?theme=0).
+//   loadEntity stops playback (verified), so if it was playing we call play() on the next `ready`.
+// The real Spotify player stays visible once loaded (Spotify's terms). If the API is blocked or slow,
+// a plain "Listen on Spotify" link to the active track is shown instead.
+import Embed from './Embed.astro';
+import { initialTrack, spotifyTrackId, tracks } from '../data/music';
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const visible = tracks.filter((track) => !track.hide);
+const start = visible.find((track) => track.title === initialTrack) ?? visible[0];
+const startId = start.spotify ? spotifyTrackId(start.spotify) : null;
+const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : null;
+---
+
+<div class="sp" data-spotify-player data-spotify={startSpotify ?? undefined}>
+  <a class="sp__buy mono" href={start.beatport ?? undefined} target="_blank" rel="noopener" hidden={!start.beatport} data-buy>
+    {t.music.buyOnBeatport} <span aria-hidden="true">↗</span>
+  </a>
+
+  <div class="sp__stage">
+    <!-- Facade: the section's single orange light (the hand's ember passes to it, see MusicScene) -->
+    <div class="sp__facade" data-facade hidden={!startSpotify}>
+      <Embed embed={{ link: null, title: t.music.listenOnSpotify }} lang={lang} glow controlled={{ name: 'Spotify', height: 152 }} />
+    </div>
+    <!-- createController replaces this element with Spotify's iframe -->
+    <div class="sp__frame" data-frame hidden><div data-mount></div></div>
+    <p class="sp__pending" data-pending hidden={!!startSpotify}><span class="pending">{t.music.spotifyPending}</span></p>
+  </div>
+
+  <p class="sp__note mono">{t.music.previewNote}</p>
+  <a class="sp__fallback mono" href={startSpotify ?? undefined} target="_blank" rel="noopener" hidden data-fallback>
+    {t.music.listenOnSpotify} <span aria-hidden="true">↗</span>
+  </a>
+</div>
+
+<script>
+  type SpotifyController = {
+    loadEntity(uriOrUrl: string): void;
+    play(): void;
+    addListener(event: string, cb: (e: { data: { isPaused: boolean } }) => void): void;
+  };
+  type SpotifyIFrameAPI = {
+    createController(el: HTMLElement, options: object, cb: (controller: SpotifyController) => void): void;
+  };
+  type Win = Window & { onSpotifyIframeApiReady?: (api: SpotifyIFrameAPI) => void };
+
+  const box = document.querySelector<HTMLElement>('[data-spotify-player]');
+  const carousel = document.querySelector<HTMLElement>('[data-carousel]');
+  if (box && carousel) {
+    const facade = box.querySelector<HTMLElement>('[data-facade]')!;
+    const facadeButton = facade.querySelector<HTMLButtonElement>('[data-embed-controlled]')!;
+    const frame = box.querySelector<HTMLElement>('[data-frame]')!;
+    const mount = box.querySelector<HTMLElement>('[data-mount]')!;
+    const pending = box.querySelector<HTMLElement>('[data-pending]')!;
+    const fallback = box.querySelector<HTMLAnchorElement>('[data-fallback]')!;
+    const buy = box.querySelector<HTMLAnchorElement>('[data-buy]')!;
+
+    let spotify = box.dataset.spotify ?? '';
+    let state: 'idle' | 'loading' | 'ready' | 'failed' = 'idle';
+    let controller: SpotifyController | null = null;
+    let playing = false;
+    let playOnReady = false;
+    let timer = 0;
+
+    const withTheme = (url: string) => `${url}?theme=0`; // dark embed; loadEntity keeps URL params
+
+    function showFallback() {
+      state = 'failed';
+      clearTimeout(timer);
+      fallback.hidden = !spotify;
+    }
+
+    function loadApi() {
+      if (state !== 'idle' || !spotify) return;
+      state = 'loading';
+      (window as Win).onSpotifyIframeApiReady = (api) => {
+        api.createController(mount, { url: withTheme(spotify), width: '100%', height: 152 }, (c) => {
+          controller = c;
+          state = 'ready';
+          clearTimeout(timer);
+          fallback.hidden = true;
+          facade.hidden = true;
+          frame.hidden = false;
+          c.addListener('playback_update', (e) => (playing = !e.data.isPaused));
+          // `ready` fires after createController and after every loadEntity
+          c.addListener('ready', () => {
+            if (!playOnReady) return;
+            playOnReady = false;
+            c.play();
+          });
+        });
+      };
+      const script = document.createElement('script');
+      script.src = 'https://open.spotify.com/embed/iframe-api/v1';
+      script.async = true;
+      script.onerror = showFallback;
+      document.body.append(script);
+      timer = window.setTimeout(() => state !== 'ready' && showFallback(), 8000);
+    }
+
+    facadeButton.addEventListener('click', () => {
+      playOnReady = true; // the click is the intent to listen
+      loadApi();
+    });
+
+    carousel.addEventListener('track:change', (event) => {
+      const detail = (event as CustomEvent<{ spotify?: string; beatport?: string }>).detail;
+      spotify = detail.spotify ?? '';
+      buy.hidden = !detail.beatport;
+      if (detail.beatport) buy.href = detail.beatport;
+      fallback.href = spotify;
+      if (state === 'failed') fallback.hidden = !spotify;
+
+      // No Spotify link for this track: show the pending marker instead of the player
+      pending.hidden = !!spotify;
+      if (!spotify) {
+        frame.hidden = true;
+        facade.hidden = true;
+        return;
+      }
+      if (state === 'ready' && controller) {
+        frame.hidden = false;
+        playOnReady = playing; // keep playing if it was playing; only load if it was paused
+        controller.loadEntity(withTheme(spotify));
+      } else {
+        facade.hidden = state === 'ready';
+        loadApi(); // first cover change counts as interaction
+      }
+    });
+  }
+</script>
+
+<style>
+  .sp {
+    display: grid;
+    gap: var(--space-s);
+    max-width: 40rem;
+    margin: var(--space-m) auto 0;
+  }
+
+  .sp__buy,
+  .sp__fallback {
+    justify-self: center;
+    padding-block: 0.25rem;
+    color: var(--fog-300);
+    text-transform: uppercase;
+    text-underline-offset: 0.25em;
+  }
+
+  .sp__buy:hover,
+  .sp__fallback:hover {
+    color: var(--moon-100);
+  }
+
+  .sp__stage {
+    min-height: 152px;
+  }
+
+  .sp__frame :global(iframe) {
+    display: block;
+    width: 100%;
+    height: 152px;
+    border: 0;
+    border-radius: 12px;
+  }
+
+  .sp__pending {
+    display: grid;
+    place-items: center;
+    min-height: 152px;
+    border: 1px solid var(--blue-600);
+    border-radius: var(--radius);
+  }
+
+  .sp__note {
+    color: var(--fog-300);
+    text-align: center;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+</style>

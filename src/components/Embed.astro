@@ -10,12 +10,17 @@ interface Props {
   lang: Lang;
   /** The section's single orange light. */
   glow?: boolean;
+  /**
+   * Controlled mode: same facade, but it doesn't create the iframe. Another script owns the player
+   * (the Music carousel + Spotify iFrame API) and listens for clicks on the button. Value = provider name.
+   */
+  controlled?: { name: string; height: number };
 }
 
-const { embed, lang, glow = false } = Astro.props;
+const { embed, lang, glow = false, controlled } = Astro.props;
 const t = useTranslations(lang);
 // Whatever was pasted in `link` becomes { provider, src, height }; unknown links stop the build.
-const player = embed.link ? toEmbed(embed.link) : null;
+const player = controlled ? { ...controlled, src: undefined, provider: undefined } : embed.link ? toEmbed(embed.link) : null;
 const height = player?.height ?? 166;
 const title = embed.title ?? `${player?.name ?? ''} player`.trim();
 ---
@@ -23,7 +28,12 @@ const title = embed.title ?? `${player?.name ?? ''} player`.trim();
 <div class="embed" style={`--embed-h: ${height}px`} data-embed-src={player?.src} data-embed-title={title} data-embed-provider={player?.provider}>
   {
     player ? (
-      <button class:list={['embed__play', glow && 'embed__play--glow']} type="button">
+      <button
+        class:list={['embed__play', glow && 'embed__play--glow']}
+        type="button"
+        data-embed-controlled={controlled ? '' : undefined}
+        data-music-light={controlled && glow ? '' : undefined}
+      >
         <span class="embed__icon" aria-hidden="true">
           <svg width="14" height="14" viewBox="0 0 12 12"><path d="M2 1l9 5-9 5z" fill="currentColor" /></svg>
         </span>

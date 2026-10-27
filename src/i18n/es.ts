@@ -37,6 +37,10 @@ export const es: Dictionary = {
     prev: 'Tema anterior',
     next: 'Tema siguiente',
     coverOf: 'Portada de',
+    listenOnSpotify: 'Escuchar en Spotify',
+    buyOnBeatport: 'Comprar en Beatport',
+    previewNote: 'Sin sesión de Spotify en el navegador, se escuchan 30 segundos.',
+    spotifyPending: '[SPOTIFY PENDIENTE]',
     allOnBeatport: 'Todos los tracks en Beatport',
   },
   embed: {

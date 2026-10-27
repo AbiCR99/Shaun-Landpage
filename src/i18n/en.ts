@@ -37,6 +37,10 @@ export const en = {
     prev: 'Previous track',
     next: 'Next track',
     coverOf: 'Cover of',
+    listenOnSpotify: 'Listen on Spotify',
+    buyOnBeatport: 'Buy on Beatport',
+    previewNote: "Without a Spotify login in this browser, you'll hear a 30-second preview.",
+    spotifyPending: '[SPOTIFY PENDIENTE]',
     allOnBeatport: 'All tracks on Beatport',
   },
   embed: {

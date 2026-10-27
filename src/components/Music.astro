@@ -1,5 +1,6 @@
 ---
 import MusicScene from './MusicScene.astro';
+import SpotifyPlayer from './SpotifyPlayer.astro';
 import TrackCarousel from './TrackCarousel.astro';
 import { beatportProfile, releases } from '../data/music';
 import { useTranslations, type Lang } from '../i18n/utils';
@@ -22,6 +23,7 @@ const t = useTranslations(lang);
 
     <div class="music__tracks">
       <TrackCarousel lang={lang} />
+      <SpotifyPlayer lang={lang} />
     </div>
 
     <h3 class="music__subtitle">{t.music.releases}</h3>

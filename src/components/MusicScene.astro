@@ -40,7 +40,8 @@ const SIZE = { desktop: [900, 620], mobile: [480, 600] };
     const desktop = matchMedia('(min-width: 768px)');
     // The featured player's play button is Music's single light. It may not exist yet
     // (pending embed): then there's simply nothing to light up.
-    const play = document.querySelector<HTMLElement>('#music .embed__play--glow');
+    // Explicit hook (set by the Spotify player facade in Music) instead of a class selector.
+    const play = document.querySelector<HTMLElement>('[data-music-light]');
 
     let frames: HTMLImageElement[] = [];
     let empty: HTMLImageElement;
