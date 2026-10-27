@@ -167,47 +167,21 @@ export const coverSlug = (title: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
-// From the artist's Beatport track list (pasted by the team, 2026-10-25): one row per song,
-// with the label and year of its FIRST release (reissues and compilations left out). Newest first.
-// `url` only where the Beatport track id is known; everything else links via the artist profile below the list.
+// List under the carousel: remixes and upcoming releases. `url` = Beatport or Spotify link of the track, if any.
 export const beatportProfile = 'https://www.beatport.com/artist/shaun-nolanh/1291888';
 
 export const releases: Release[] = [
-  // Upcoming (not on Beatport yet)
+  // Remixes & coming soon. Shaun's own tracks and collabs live in `tracks` (the carousel).
   { title: 'Neverl3vel (Shaun Nolanh Remix)', artists: 'Roberto Caceres & Jose Tabarez', label: null, year: null, type: 'remix', upcoming: true },
   { title: null, artists: 'Shaun Nolanh & Praneeth.D', label: null, year: null, type: 'original', upcoming: true },
-  // Released
-  { title: 'Ultimate Desire', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2026, type: 'original' },
   {
-    title: 'Case 701',
-    artists: 'Stan Seba, Shaun Nolanh',
+    title: "Paul's Tape (Shaun Nolanh Remix)",
+    artists: 'Valentín Ciancio',
     label: '3rd Avenue',
     year: 2026,
-    type: 'original',
-    url: 'https://www.beatport.com/track/case-701/30654526',
+    type: 'remix',
+    url: 'https://open.spotify.com/intl-es/track/32RzcH0HqLePY1f8gvJ0NN?si=2c322e8ea8264c47',
   },
-  { title: "Paul's Tape (Shaun Nolanh Remix)", artists: 'Valentín Ciancio', label: '3rd Avenue', year: 2026, type: 'remix' },
-  { title: 'I Drove All Night to Feel This', artists: 'Shaun Nolanh', label: 'BBop Music', year: 2026, type: 'original' },
-  { title: 'Chrome Butterflies', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2025, type: 'original' },
-  { title: 'Magnetic Bloom', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2025, type: 'original' },
-  {
-    title: 'Through the Loss',
-    artists: 'Stan Seba, Shaun Nolanh',
-    label: '3rd Avenue',
-    year: 2025,
-    type: 'original',
-    url: 'https://www.beatport.com/track/through-the-loss/22465564',
-  },
-  { title: '300 Mg', artists: 'Shaun Nolanh', label: 'Mustache Crew Records', year: 2025, type: 'original' },
-  {
-    title: 'Innocent Spt',
-    artists: 'Shaun Nolanh',
-    label: '3rd Avenue',
-    year: 2025,
-    type: 'original',
-    url: 'https://www.beatport.com/track/innocent-spt/30470069',
-  },
-  { title: 'Groove You Wish You Made', artists: 'Shaun Nolanh', label: '3rd Avenue', year: 2025, type: 'original' },
 ];
 
 export type DjSet = Embed & { date: string | null; venue: string | null };

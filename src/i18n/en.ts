@@ -28,7 +28,7 @@ export const en = {
   music: {
     title: 'Music',
     lead: "Swipe through the releases. Remixes and what's next below.",
-    releases: 'Releases & remixes',
+    releases: 'Remixes & Coming soon',
     remix: 'Remix',
     upcoming: 'Upcoming',
     onBeatport: 'on Beatport',
@@ -41,6 +41,7 @@ export const en = {
     buyOnBeatport: 'Buy on Beatport',
     previewNote: "Without a Spotify login in this browser, you'll hear a 30-second preview.",
     spotifyPending: '[SPOTIFY PENDIENTE]',
+    onSpotify: 'on Spotify',
     allOnBeatport: 'All tracks on Beatport',
   },
   embed: {

@@ -36,7 +36,7 @@ const t = useTranslations(lang);
                 {r.title && r.url ? (
                   <a href={r.url} target="_blank" rel="noopener">
                     {r.title}
-                    <span class="visually-hidden"> {t.music.onBeatport}</span>
+                    <span class="visually-hidden"> {r.url.includes('spotify.com') ? t.music.onSpotify : t.music.onBeatport}</span>
                   </a>
                 ) : (
                   (r.title ?? <span class="pending">[RELEASE PENDIENTE]</span>)

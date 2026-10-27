@@ -28,7 +28,7 @@ export const es: Dictionary = {
   music: {
     title: 'Música',
     lead: 'Pasá por los lanzamientos. Abajo, remixes y lo que viene.',
-    releases: 'Releases y remixes',
+    releases: 'Remixes y próximamente',
     remix: 'Remix',
     upcoming: 'Próximamente',
     onBeatport: 'en Beatport',
@@ -41,6 +41,7 @@ export const es: Dictionary = {
     buyOnBeatport: 'Comprar en Beatport',
     previewNote: 'Sin sesión de Spotify en el navegador, se escuchan 30 segundos.',
     spotifyPending: '[SPOTIFY PENDIENTE]',
+    onSpotify: 'en Spotify',
     allOnBeatport: 'Todos los tracks en Beatport',
   },
   embed: {
