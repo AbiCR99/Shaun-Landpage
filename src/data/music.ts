@@ -25,6 +25,69 @@ export type Release = {
   url?: string | null;
 };
 
+// ─── Carousel (Music): Shaun's own tracks and collaborations, no remixes ───────────────────────
+// CÓMO SUMAR UN TEMA: agregalo acá con su link de Spotify (Compartir → Copiar link del tema) y el de
+// Beatport si existe, corré `npm run spotify:sync` (baja la portada a src/assets/covers/ y completa
+// src/data/spotify-tracks.json) y commiteá todo. Artistas, sello y año van a mano (oEmbed no los da).
+export type Track = {
+  title: string;
+  artists: string;
+  label: string | null;
+  year: number | null;
+  /** open.spotify.com/track/… link. `null` = pending (the player shows "Spotify pending"). */
+  spotify: string | null;
+  /** beatport.com/track/… link, if any */
+  beatport: string | null;
+  /** true = keep it out of the carousel */
+  hide?: boolean;
+};
+
+// Order = carousel order (newest first). Data from the artist's Beatport list (2026-10-25).
+export const tracks: Track[] = [
+  { title: 'Ultimate Desire', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2026, spotify: null, beatport: null },
+  {
+    title: 'Case 701',
+    artists: 'Stan Seba, Shaun Nolanh',
+    label: '3rd Avenue',
+    year: 2026,
+    spotify: null,
+    beatport: 'https://www.beatport.com/track/case-701/30654526',
+  },
+  { title: 'I Drove All Night to Feel This', artists: 'Shaun Nolanh', label: 'BBop Music', year: 2026, spotify: null, beatport: null },
+  { title: 'Chrome Butterflies', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2025, spotify: null, beatport: null },
+  { title: 'Magnetic Bloom', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2025, spotify: null, beatport: null },
+  {
+    title: 'Through the Loss',
+    artists: 'Stan Seba, Shaun Nolanh',
+    label: '3rd Avenue',
+    year: 2025,
+    spotify: null,
+    beatport: 'https://www.beatport.com/track/through-the-loss/22465564',
+  },
+  { title: '300 Mg', artists: 'Shaun Nolanh', label: 'Mustache Crew Records', year: 2025, spotify: null, beatport: null },
+  {
+    title: 'Innocent Spt',
+    artists: 'Shaun Nolanh',
+    label: '3rd Avenue',
+    year: 2025,
+    spotify: null,
+    beatport: 'https://www.beatport.com/track/innocent-spt/30470069',
+  },
+  { title: 'Groove You Wish You Made', artists: 'Shaun Nolanh', label: '3rd Avenue', year: 2025, spotify: null, beatport: null },
+];
+
+/** The carousel starts on this title. */
+export const initialTrack = 'Case 701';
+
+/** File name for a track's cover in src/assets/covers/ (shared by the sync script and the carousel). */
+export const coverSlug = (title: string) =>
+  title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
 // Featured tracks, in the artist's order. The first one holds Music's light (the hand's ember passes to it).
 // Embed codes pasted by the team from each Beatport track page (Share → Embed).
 export const featured: Embed[] = [
