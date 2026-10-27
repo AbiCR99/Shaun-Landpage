@@ -1,1 +1,80 @@
-{}
+{
+  "https://open.spotify.com/track/43rpPSVBGXSS1scP0jHWKz": {
+    "title": "Hibiki",
+    "uri": "spotify:track:43rpPSVBGXSS1scP0jHWKz",
+    "cover": "hibiki.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/5niBezsERwlfrd9w421ZdX": {
+    "title": "Hyōka",
+    "uri": "spotify:track:5niBezsERwlfrd9w421ZdX",
+    "cover": "hyoka.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/7AlO2k2KmtC6pmjkp8QKbX": {
+    "title": "Kasumi",
+    "uri": "spotify:track:7AlO2k2KmtC6pmjkp8QKbX",
+    "cover": "kasumi.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/6mQ9MUjChsWguS0CQNRqEJ": {
+    "title": "Sky Burns Gold",
+    "uri": "spotify:track:6mQ9MUjChsWguS0CQNRqEJ",
+    "cover": "sky-burns-gold.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/5n0dnHkn5EGkn94bTcSPb9": {
+    "title": "Ultimate Desire",
+    "uri": "spotify:track:5n0dnHkn5EGkn94bTcSPb9",
+    "cover": "ultimate-desire.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/00zcWZKX4Wf691ySTqK9tK": {
+    "title": "Case 701",
+    "uri": "spotify:track:00zcWZKX4Wf691ySTqK9tK",
+    "cover": "case-701.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/5Xd1cOtJfvpVCzQig19BhB": {
+    "title": "I Drove All Night to Feel This",
+    "uri": "spotify:track:5Xd1cOtJfvpVCzQig19BhB",
+    "cover": "i-drove-all-night-to-feel-this.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/0mkoBLHcXAdSfyoMpBQkSf": {
+    "title": "Chrome Butterflies",
+    "uri": "spotify:track:0mkoBLHcXAdSfyoMpBQkSf",
+    "cover": "chrome-butterflies.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/7JiOIgYYJkbn6vboNKhk33": {
+    "title": "Magnetic Bloom",
+    "uri": "spotify:track:7JiOIgYYJkbn6vboNKhk33",
+    "cover": "magnetic-bloom.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/6cgNUmAWqONB6UKGfObRUe": {
+    "title": "Through the Loss",
+    "uri": "spotify:track:6cgNUmAWqONB6UKGfObRUe",
+    "cover": "through-the-loss.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/7tHv1n8k9h7ZLupRcJTeq6": {
+    "title": "300 Mg",
+    "uri": "spotify:track:7tHv1n8k9h7ZLupRcJTeq6",
+    "cover": "300-mg.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/0Y1UkChFJECfD3NpKSQVBU": {
+    "title": "Innocent Spt",
+    "uri": "spotify:track:0Y1UkChFJECfD3NpKSQVBU",
+    "cover": "innocent-spt.jpg",
+    "coverSize": 640
+  },
+  "https://open.spotify.com/track/7Max98kkWKi1h9PQTTh8Lh": {
+    "title": "Groove You Wish You Made",
+    "uri": "spotify:track:7Max98kkWKi1h9PQTTh8Lh",
+    "cover": "groove-you-wish-you-made.jpg",
+    "coverSize": 640
+  }
+}

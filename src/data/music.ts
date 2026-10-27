@@ -42,38 +42,113 @@ export type Track = {
   hide?: boolean;
 };
 
-// Order = carousel order (newest first). Data from the artist's Beatport list (2026-10-25).
+// Order = carousel order (newest first). Artists/label/year: the artist's Beatport list, Spotify's public
+// track pages and the team (2026-10-27): the Hibiki EP (Dublucid) and Sky Burns Gold (independent) aren't on Beatport.
 export const tracks: Track[] = [
-  { title: 'Ultimate Desire', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2026, spotify: null, beatport: null },
+  {
+    title: 'Hibiki',
+    artists: 'Shaun Nolanh',
+    label: 'Dublucid',
+    year: 2026,
+    spotify: 'https://open.spotify.com/intl-es/track/43rpPSVBGXSS1scP0jHWKz?si=54783f8a7f57467d',
+    beatport: null,
+  },
+  {
+    title: 'Hyōka',
+    artists: 'Shaun Nolanh',
+    label: 'Dublucid',
+    year: 2026,
+    spotify: 'https://open.spotify.com/intl-es/track/5niBezsERwlfrd9w421ZdX?si=611019c185754050',
+    beatport: null,
+  },
+  {
+    title: 'Kasumi',
+    artists: 'Shaun Nolanh',
+    label: 'Dublucid',
+    year: 2026,
+    spotify: 'https://open.spotify.com/intl-es/track/7AlO2k2KmtC6pmjkp8QKbX?si=238f9dd0c5594c9d',
+    beatport: null,
+  },
+  {
+    title: 'Sky Burns Gold',
+    artists: 'Shaun Nolanh',
+    label: 'Independent',
+    year: 2026,
+    spotify: 'https://open.spotify.com/intl-es/track/6mQ9MUjChsWguS0CQNRqEJ?si=7b7ac38699024580',
+    beatport: null,
+  },
+  {
+    title: 'Ultimate Desire',
+    artists: 'Stan Seba, Shaun Nolanh',
+    label: '3rd Avenue',
+    year: 2026,
+    spotify: 'https://open.spotify.com/intl-es/track/5n0dnHkn5EGkn94bTcSPb9?si=396b59c2c3074ac4',
+    beatport: null,
+  },
   {
     title: 'Case 701',
     artists: 'Stan Seba, Shaun Nolanh',
     label: '3rd Avenue',
     year: 2026,
-    spotify: null,
+    spotify: 'https://open.spotify.com/intl-es/track/00zcWZKX4Wf691ySTqK9tK?si=ef60861a82db486d',
     beatport: 'https://www.beatport.com/track/case-701/30654526',
   },
-  { title: 'I Drove All Night to Feel This', artists: 'Shaun Nolanh', label: 'BBop Music', year: 2026, spotify: null, beatport: null },
-  { title: 'Chrome Butterflies', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2025, spotify: null, beatport: null },
-  { title: 'Magnetic Bloom', artists: 'Stan Seba, Shaun Nolanh', label: '3rd Avenue', year: 2025, spotify: null, beatport: null },
+  {
+    title: 'I Drove All Night to Feel This',
+    artists: 'Shaun Nolanh',
+    label: 'BBop Music',
+    year: 2026,
+    spotify: 'https://open.spotify.com/intl-es/track/5Xd1cOtJfvpVCzQig19BhB?si=f56e0b6b06814488',
+    beatport: null,
+  },
+  {
+    title: 'Chrome Butterflies',
+    artists: 'Stan Seba, Shaun Nolanh',
+    label: '3rd Avenue',
+    year: 2025,
+    spotify: 'https://open.spotify.com/intl-es/track/0mkoBLHcXAdSfyoMpBQkSf?si=b9ac0c0c52024960',
+    beatport: null,
+  },
+  {
+    title: 'Magnetic Bloom',
+    artists: 'Stan Seba, Shaun Nolanh',
+    label: '3rd Avenue',
+    year: 2025,
+    spotify: 'https://open.spotify.com/intl-es/track/7JiOIgYYJkbn6vboNKhk33?si=6cc37983bd3240e3',
+    beatport: null,
+  },
   {
     title: 'Through the Loss',
     artists: 'Stan Seba, Shaun Nolanh',
     label: '3rd Avenue',
     year: 2025,
-    spotify: null,
+    spotify: 'https://open.spotify.com/intl-es/track/6cgNUmAWqONB6UKGfObRUe?si=13dfb5c2df294ac1',
     beatport: 'https://www.beatport.com/track/through-the-loss/22465564',
   },
-  { title: '300 Mg', artists: 'Shaun Nolanh', label: 'Mustache Crew Records', year: 2025, spotify: null, beatport: null },
+  {
+    title: '300 Mg',
+    artists: 'Shaun Nolanh',
+    label: 'Mustache Crew Records',
+    year: 2025,
+    spotify: 'https://open.spotify.com/intl-es/track/7tHv1n8k9h7ZLupRcJTeq6?si=117ebc8225034d47',
+    beatport: null,
+  },
   {
     title: 'Innocent Spt',
     artists: 'Shaun Nolanh',
     label: '3rd Avenue',
     year: 2025,
-    spotify: null,
+    spotify: 'https://open.spotify.com/intl-es/track/0Y1UkChFJECfD3NpKSQVBU?si=678361d3fa3f49c6',
     beatport: 'https://www.beatport.com/track/innocent-spt/30470069',
   },
-  { title: 'Groove You Wish You Made', artists: 'Shaun Nolanh', label: '3rd Avenue', year: 2025, spotify: null, beatport: null },
+  {
+    title: 'Groove You Wish You Made',
+    artists: 'Shaun Nolanh',
+    label: '3rd Avenue',
+    year: 2025,
+    spotify: 'https://open.spotify.com/intl-es/track/7Max98kkWKi1h9PQTTh8Lh?si=a428123d030a43de',
+    beatport: null,
+  },
 ];
 
 /** The carousel starts on this title. */
