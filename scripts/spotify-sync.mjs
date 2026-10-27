@@ -18,14 +18,14 @@ if (ci && !process.env.VERCEL) process.exit(0); // local builds use the committe
 const warn = (msg) => console.warn(`[spotify-sync] ⚠ ${msg}`);
 
 async function main() {
-  const { tracks, coverSlug } = await import(fileURLToPath(new URL('src/data/music.ts', ROOT)));
+  const { tracks, coverSlug, spotifyTrackId } = await import(fileURLToPath(new URL('src/data/music.ts', ROOT)));
   const previous = JSON.parse(await readFile(OUT, 'utf8').catch(() => '{}'));
   const result = {};
   await mkdir(COVERS, { recursive: true });
 
   for (const track of tracks) {
     if (!track.spotify) continue;
-    const id = track.spotify.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?track\/([A-Za-z0-9]+)/)?.[1];
+    const id = spotifyTrackId(track.spotify);
     if (!id) {
       warn(`"${track.title}": not an open.spotify.com/track/… link (${track.spotify})`);
       continue;

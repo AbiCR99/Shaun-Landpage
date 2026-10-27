@@ -27,12 +27,16 @@ export const en = {
   },
   music: {
     title: 'Music',
-    lead: 'Three picks first. Releases and remixes below.',
-    featured: 'Featured',
+    lead: "Swipe through the releases. Remixes and what's next below.",
     releases: 'Releases & remixes',
     remix: 'Remix',
     upcoming: 'Upcoming',
     onBeatport: 'on Beatport',
+    carousel: 'Releases',
+    select: 'Select',
+    prev: 'Previous track',
+    next: 'Next track',
+    coverOf: 'Cover of',
     allOnBeatport: 'All tracks on Beatport',
   },
   embed: {

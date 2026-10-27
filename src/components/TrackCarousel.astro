@@ -1,0 +1,343 @@
+---
+// Coverflow carousel of Shaun's tracks. Native, no dependencies:
+// - scroll-snap gives the touch swipe and inertia (the browser's own gesture, smooth on iPhone);
+// - the 3D tilt is a scroll-driven animation (animation-timeline: view(inline)) inside @supports;
+// - a small script handles buttons, keyboard and which cover is active (it emits `track:change`).
+// Without JS it is a scrollable row of covers, each one a link to the track.
+import type { ImageMetadata } from 'astro';
+import { Picture } from 'astro:assets';
+import { coverSlug, initialTrack, spotifyTrackId, tracks } from '../data/music';
+import synced from '../data/spotify-tracks.json';
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Covers downloaded by `npm run spotify:sync`
+const covers = import.meta.glob<{ default: ImageMetadata }>('../assets/covers/*.jpg', { eager: true });
+const coverFor = (title: string) => covers[`../assets/covers/${coverSlug(title)}.jpg`]?.default;
+
+const items = tracks
+  .filter((track) => !track.hide)
+  .map((track) => {
+    const id = track.spotify ? spotifyTrackId(track.spotify) : null;
+    const meta = id ? (synced as Record<string, { uri: string }>)[`https://open.spotify.com/track/${id}`] : undefined;
+    const cover = coverFor(track.title);
+    if (!cover) console.warn(`[carousel] Missing cover for "${track.title}": run \`npm run spotify:sync\` (or add src/assets/covers/${coverSlug(track.title)}.jpg).`);
+    return {
+      ...track,
+      cover,
+      spotifyUrl: id ? `https://open.spotify.com/track/${id}` : null,
+      uri: meta?.uri ?? (id ? `spotify:track:${id}` : null),
+    };
+  });
+
+const initial = Math.max(0, items.findIndex((item) => item.title === initialTrack));
+const active = items[initial];
+const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.title} — ${item.artists}`;
+---
+
+<section
+  class="cf"
+  aria-roledescription="carousel"
+  aria-label={t.music.carousel}
+  data-carousel
+  data-initial={initial}
+  data-select={t.music.select}
+>
+  <ul class="cf__track" role="list">
+    {
+      items.map((item, i) => (
+        <li
+          class="cf__slide"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} / ${items.length}`}
+          data-title={item.title}
+          data-artists={item.artists}
+          data-spotify={item.spotifyUrl ?? undefined}
+          data-uri={item.uri ?? undefined}
+          data-beatport={item.beatport ?? undefined}
+        >
+          <a
+            class="cf__cover"
+            href={item.spotifyUrl ?? item.beatport ?? undefined}
+            target="_blank"
+            rel="noopener"
+            aria-current={i === initial ? 'true' : undefined}
+          >
+            {item.cover ? (
+              <Picture
+                src={item.cover}
+                formats={['avif', 'webp']}
+                widths={[220, 440, 640]}
+                sizes="(min-width: 48rem) 220px, 58vw"
+                alt={coverAlt(item)}
+                loading={Math.abs(i - initial) <= 1 ? 'eager' : 'lazy'}
+                draggable="false"
+              />
+            ) : (
+              <span class="cf__placeholder mono" role="img" aria-label={coverAlt(item)}>
+                {item.title}
+              </span>
+            )}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="cf__now">
+    <button class="cf__nav" type="button" data-dir="-1" aria-label={t.music.prev} hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>
+    </button>
+    <div class="cf__info">
+      <p class="cf__title" data-now-title>{active.title}</p>
+      <p class="cf__artists" data-now-artists>{active.artists}</p>
+    </div>
+    <button class="cf__nav" type="button" data-dir="1" aria-label={t.music.next} hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>
+    </button>
+  </div>
+  <p class="visually-hidden" aria-live="polite" data-live></p>
+  <slot />
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-carousel]');
+  if (root) {
+    const track = root.querySelector<HTMLElement>('.cf__track')!;
+    const slides = [...root.querySelectorAll<HTMLElement>('.cf__slide')];
+    const nowTitle = root.querySelector<HTMLElement>('[data-now-title]')!;
+    const nowArtists = root.querySelector<HTMLElement>('[data-now-artists]')!;
+    const live = root.querySelector<HTMLElement>('[data-live]')!;
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let active = Number(root.dataset.initial);
+    let ticking = false;
+    let interacted = false;
+
+    // With JS each cover becomes a "select" button (without JS it stays a link to the track).
+    slides.forEach((slide, i) => {
+      const cover = slide.querySelector<HTMLAnchorElement>('.cf__cover')!;
+      cover.setAttribute('role', 'button');
+      cover.setAttribute('aria-label', `${root.dataset.select} ${slide.dataset.title}`);
+      cover.addEventListener('click', (e) => {
+        e.preventDefault();
+        interacted = true;
+        goTo(i);
+      });
+    });
+    root.querySelectorAll<HTMLButtonElement>('.cf__nav').forEach((button) => {
+      button.hidden = false;
+      button.addEventListener('click', () => {
+        interacted = true;
+        goTo(active + Number(button.dataset.dir));
+      });
+    });
+
+    // Scroll only the carousel (never the page) so the slide sits in the middle.
+    function goTo(i: number, behavior: ScrollBehavior = reduceMotion ? 'auto' : 'smooth') {
+      const slide = slides[Math.max(0, Math.min(slides.length - 1, i))];
+      track.scrollTo({ left: slide.offsetLeft - (track.clientWidth - slide.offsetWidth) / 2, behavior });
+    }
+
+    function nearest() {
+      const box = track.getBoundingClientRect();
+      const center = box.left + box.width / 2;
+      let best = 0;
+      let distance = Infinity;
+      slides.forEach((slide, i) => {
+        const r = slide.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - center);
+        if (d < distance) [best, distance] = [i, d];
+      });
+      return best;
+    }
+
+    function setActive(i: number) {
+      if (i === active) return;
+      active = i;
+      const slide = slides[i];
+      slides.forEach((s, j) => {
+        const cover = s.querySelector('.cf__cover')!;
+        if (j === i) cover.setAttribute('aria-current', 'true');
+        else cover.removeAttribute('aria-current');
+      });
+      nowTitle.textContent = slide.dataset.title!;
+      nowArtists.textContent = slide.dataset.artists!;
+      if (interacted) live.textContent = `${slide.dataset.title} — ${slide.dataset.artists}`;
+      root!.dispatchEvent(new CustomEvent('track:change', { bubbles: true, detail: { index: i, ...slide.dataset } }));
+    }
+
+    track.addEventListener(
+      'scroll',
+      () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+          setActive(nearest());
+        });
+      },
+      { passive: true },
+    );
+    // Swipes and wheel count as interaction too (for the live announcement)
+    track.addEventListener('pointerdown', () => (interacted = true), { passive: true });
+    track.addEventListener('wheel', () => (interacted = true), { passive: true });
+
+    track.addEventListener('keydown', (e) => {
+      const keys: Record<string, number> = { ArrowLeft: active - 1, ArrowRight: active + 1, Home: 0, End: slides.length - 1 };
+      if (!(e.key in keys)) return;
+      e.preventDefault();
+      interacted = true;
+      goTo(keys[e.key]);
+      slides[Math.max(0, Math.min(slides.length - 1, keys[e.key]))].querySelector<HTMLElement>('.cf__cover')!.focus({ preventScroll: true });
+    });
+
+    // Start centered on the initial track (Case 701), without animation.
+    goTo(active, 'auto');
+  }
+</script>
+
+<style>
+  .cf {
+    --cover: min(58vw, 220px);
+  }
+
+  .cf__track {
+    display: flex;
+    gap: clamp(1rem, 4vw, 2.5rem);
+    margin: 0 calc(var(--gutter) * -1);
+    /* Side padding so the first and last covers can reach the center */
+    padding: var(--space-m) calc(50% - var(--cover) / 2) calc(var(--cover) * 0.35);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    list-style: none;
+    /* Covers fade out at the edges instead of being cut by the container */
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+
+  .cf__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cf__slide {
+    flex: none;
+    width: var(--cover);
+    scroll-snap-align: center;
+  }
+
+  .cf__cover {
+    display: block;
+    border-radius: 10px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cf__cover :global(img),
+  .cf__placeholder {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid color-mix(in srgb, var(--blue-600) 60%, transparent);
+    user-select: none;
+    /* Reflection below (Safari / Chrome; Firefox simply shows none) */
+    -webkit-box-reflect: below 6px linear-gradient(transparent 62%, color-mix(in srgb, var(--night-950) 35%, transparent));
+  }
+
+  .cf__placeholder {
+    display: grid;
+    place-items: center;
+    padding: var(--space-s);
+    background: var(--night-800);
+    color: var(--fog-300);
+    text-align: center;
+  }
+
+  /* Coverflow: covers tilt and recede away from the center, driven by their position in the row */
+  @supports (animation-timeline: view(inline)) {
+    .cf__slide {
+      /* Longhands on purpose: the minifier would merge `animation` + `animation-timeline` into an invalid shorthand */
+      animation-name: coverflow;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view(inline);
+    }
+  }
+
+  @keyframes coverflow {
+    0% {
+      transform: perspective(900px) rotateY(-25deg) translateZ(-60px) scale(0.86);
+      opacity: 0.55;
+    }
+    50% {
+      transform: none;
+      opacity: 1;
+    }
+    100% {
+      transform: perspective(900px) rotateY(25deg) translateZ(-60px) scale(0.86);
+      opacity: 0.55;
+    }
+  }
+
+  .cf__now {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-s);
+    max-width: 28rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .cf__title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .cf__artists {
+    color: var(--fog-300);
+  }
+
+  .cf__nav {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--blue-600);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--moon-100);
+    cursor: pointer;
+    transition: border-color 0.3s var(--ease-slow), background-color 0.3s var(--ease-slow);
+  }
+
+  .cf__nav:hover {
+    border-color: var(--fog-300);
+    background: var(--night-800);
+  }
+
+  .cf__nav[hidden] {
+    visibility: hidden;
+    display: grid;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cf__slide {
+      animation: none;
+    }
+
+    .cf__track {
+      scroll-behavior: auto;
+    }
+  }
+</style>

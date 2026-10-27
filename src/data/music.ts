@@ -1,7 +1,7 @@
 // Music data. Don't invent anything: if a field isn't confirmed, leave it `null`
 // and the site shows a placeholder.
 //
-// CÓMO CARGAR UN TRACK O UN SET (featured y sets):
+// CÓMO CARGAR UN SET (sets de Radio Silence):
 //   En SoundCloud, Spotify o Mixcloud: Compartir → Copiar link, y pegalo en `link`, entre comillas.
 //   También sirve pegar el código <iframe …> de "Embed" completo. La plataforma se detecta sola.
 //   Ejemplo: link: 'https://soundcloud.com/shaunnolanhmusic/nombre-del-track',
@@ -154,6 +154,10 @@ export const tracks: Track[] = [
 /** The carousel starts on this title. */
 export const initialTrack = 'Case 701';
 
+/** Spotify track id from any open.spotify.com track link (intl-xx/, embed/, ?si=… all accepted). */
+export const spotifyTrackId = (link: string) =>
+  link.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(?:embed\/)?track\/([A-Za-z0-9]+)/)?.[1] ?? null;
+
 /** File name for a track's cover in src/assets/covers/ (shared by the sync script and the carousel). */
 export const coverSlug = (title: string) =>
   title
@@ -162,23 +166,6 @@ export const coverSlug = (title: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
-
-// Featured tracks, in the artist's order. The first one holds Music's light (the hand's ember passes to it).
-// Embed codes pasted by the team from each Beatport track page (Share → Embed).
-export const featured: Embed[] = [
-  {
-    link: '<iframe src="https://embed.beatport.com/?id=30654526&type=track" width="100%" height="162" frameborder="0" scrolling="no" style="max-width:600px;"></iframe>',
-    title: 'Case 701',
-  },
-  {
-    link: '<iframe src="https://embed.beatport.com/?id=29208623&type=track" width="100%" height="162" frameborder="0" scrolling="no" style="max-width:600px;"></iframe>',
-    title: 'Through the Loss',
-  },
-  {
-    link: '<iframe src="https://embed.beatport.com/?id=30470069&type=track" width="100%" height="162" frameborder="0" scrolling="no" style="max-width:600px;"></iframe>',
-    title: 'Innocent Spt',
-  },
-];
 
 // From the artist's Beatport track list (pasted by the team, 2026-10-25): one row per song,
 // with the label and year of its FIRST release (reissues and compilations left out). Newest first.
@@ -225,7 +212,7 @@ export const releases: Release[] = [
 
 export type DjSet = Embed & { date: string | null; venue: string | null };
 
-// Radio Silence: 2–3 featured sets. The first one is the section's "light source".
+// Radio Silence: 2–3 sets. The first one is the section's "light source".
 export const sets: DjSet[] = [
   {
     // Embed code pasted by the team (SoundCloud → Share → Embed); toEmbed restyles it in the site's palette.
