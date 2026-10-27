@@ -33,7 +33,7 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 - `src/styles/tokens.css` tiene la **paleta cerrada de 11 colores**, la escala tipográfica y el espaciado. No agregar colores ni escribir hex en otros archivos: usar los tokens, y `color-mix()` para transparencias.
 - Dominan los azules noche. **El naranja (`--glow-*`) es escaso: una sola fuente de luz por sección.** `.btn--glow` o el prop `glow` va como máximo una vez por sección:
   - Hero = Listen (el glow del horizonte es azul: no compite)
-  - Music = play del destacado
+  - Music = botón de la fachada del reproductor de Spotify (debajo del carrusel)
   - Sets = primer set
   - Booking = press kit
   - Collabs = enviar
@@ -55,7 +55,6 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 ## Embeds, formularios y email
 
 - **Embeds** (`Embed.astro`): son fachadas que cargan al hacer clic. El iframe de Beatport, SoundCloud, Spotify o Mixcloud se crea recién en el clic, así que el HTML inicial tiene que tener cero iframes.
-  - Los 3 destacados de Music son reproductores de Beatport elegidos por el artista (`featured` es un array; solo el primero lleva `glow`). Los releases salen de su lista de Beatport.
   - SoundCloud se normaliza al modo `visual` (oscuro) con el acento leído de `--glow-500` en `tokens.css`.
   - Beatport bloquea el acceso automático: los datos los pega el equipo (código Embed o lista de tracks); no intentar leer beatport.com.
   - En `src/data/music.ts` se pega en `link` el link normal del track/set (en Beatport, la página del track o su código Embed) (Compartir → Copiar link), el `src` del iframe o el `<iframe>` completo. `toEmbed` (`src/data/embed.ts`) detecta la plataforma, arma la URL del reproductor y su altura.
@@ -66,6 +65,18 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
   - Con JS se envía por fetch; sin JS, cae a un POST normal.
 - **Email de booking**: nunca aparece como texto plano. `ObfuscatedEmail.astro` guarda las partes invertidas y las une con JS.
 
+## Music: carrusel + reproductor de Spotify
+
+- **Carrusel** (`TrackCarousel.astro`): coverflow nativo, sin dependencias. `scroll-snap` para el swipe, el giro 3D con `animation-timeline: view(inline)` dentro de `@supports` (longhands), reflejo con `-webkit-box-reflect`. Un script chico convierte cada portada en botón "Seleccionar …", maneja flechas/teclado y emite `track:change`. Sin JS: fila de links a Spotify. Reduced motion: sin 3D. Sin naranja.
+- **Reproductor** (`SpotifyPlayer.astro`): Spotify iFrame API, cargada recién en la primera interacción. Cambiar de portada → `loadEntity(url?theme=0)`; `loadEntity` corta la reproducción, así que si estaba sonando se llama `play()` en el siguiente `ready`. La fachada es `Embed.astro` en modo `controlled` y lleva `[data-music-light]` (la luz de la mano pasa ahí). El reproductor de Spotify queda visible (términos de Spotify); si la API falla o tarda 8 s, link "Escuchar en Spotify".
+- **Sin app de Spotify:** la Web API exige que el dueño tenga Premium. Se usa **oEmbed** (público): `npm run spotify:sync` baja título y portada (640 px, por un prefijo no documentado del CDN; si falla, 300 px) a `src/assets/covers/` y escribe `src/data/spotify-tracks.json` (commiteado). En Vercel corre en `prebuild` y nunca frena el deploy; en local es manual.
+- **Cómo sumar un tema al carrusel:**
+  1. En `src/data/music.ts` → `tracks`, agregar `{ title, artists, label, year, spotify, beatport }` en su lugar (de lo más nuevo a lo más viejo). `spotify` = link del tema (Compartir → Copiar link; sirve con `intl-es/` y `?si=`). `beatport` = link del tema o `null`. Artistas, sello y año van a mano: oEmbed no los da.
+  2. `npm run spotify:sync` → baja la portada y completa el JSON.
+  3. `npm run build`, revisar y commitear `music.ts`, el JSON y la portada nueva.
+  - `hide: true` lo saca del carrusel; `initialTrack` define la portada inicial (hoy *Case 701*).
+- **Lista de abajo** (`releases`): solo remixes y próximos ("Remixes & Coming soon").
+
 ## Video de la mano y el cigarrillo (Music + footer)
 
 - Un único video de Google Flow (`src/assets/video/hand-drop-source.mp4`, no se importa ni entra al build) se corta en dos: la escena de Music (2,4 s → 4,9 s, atada al scroll) y el footer (4,25 s → final, se reproduce una vez). El hero no tiene video.
@@ -73,7 +84,7 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 - El fondo del video (`#081222`) se corrige con `curves` para quedar apenas por debajo de `#070D18` en los tres canales; la escena usa `mix-blend-mode: lighten` para que el fondo desaparezca contra la página. Por eso el contenedor `.music` no puede tener `isolation`. No agregar ese color a la paleta.
 - **Escena de Music** (`MusicScene.astro`): 60 WebP en `<canvas>` (desktop 900×620, mobile 480×600), arriba a la derecha del título, detrás del texto y del reproductor. Tamaño: `min(880px, 80%)` en desktop y `min(280px, 85%)` en mobile. El recorte de desktop saca los 100 px de arriba para que la mano quede al lado del título y no detrás del reproductor; el fundido inferior termina al 80 % para que nada asome debajo del reproductor.
   - Solo avanza: el scroll controla la caída pero nunca la rebobina. Al terminar queda `empty.webp` (mano vacía) para el resto de la visita; al recargar se repite.
-  - La luz pasa de la brasa al play destacado: el JS le saca `.embed__play--glow` y se lo devuelve en `EXIT_FRAME` (por recorte, en `MusicScene.astro`; revisarlo si se regeneran los cuadros).
+  - La luz pasa de la brasa al botón `[data-music-light]` (fachada del reproductor de Spotify): el JS le saca `.embed__play--glow` y se lo devuelve en `EXIT_FRAME` (por recorte, en `MusicScene.astro`; revisarlo si se regeneran los cuadros).
   - El HTML trae el estado final (mano vacía + play encendido): así queda sin JS y con reduced-motion.
   - Los cuadros se descargan con el primer scroll/toque, no al cargar (si no, bloquean el hilo principal en mobile). El canvas nunca dibuja más grande que el cuadro (evita la borrosidad).
 - Listen (hero) queda siempre con `.btn--glow`.

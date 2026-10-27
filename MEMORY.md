@@ -5,46 +5,37 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resumí o borrá lo qu
 ## Estado actual
 
 - Sitio Astro estático y bilingüe (EN `/`, ES `/es/`), 7 secciones, "luz en la oscuridad". Repo: https://github.com/Va-Delivery/Shaun-landpage (`main`, SSH vía alias `github-va`). Sin deploy todavía.
-- Video de Google Flow (2026-10-21): escena atada al scroll al lado de MUSIC + footer que se reproduce una vez.
-- 2026-10-23, revisión completa (14 commits, sin push): fallback del footer en iOS, glow del hero azul, `SITE_URL`, OG + apple-touch-icon (`npm run og`), 404 bilingüe, sitemap/robots, JSON-LD `MusicGroup`, y 7 animaciones (títulos del humo, brasa que respira, señal de Radio Silence, cascada de releases, chispa al enviar, fundido de idioma, header que se oculta + sección activa).
-- 2026-10-25: embeds listos para pegar (`link` en `music.ts` acepta link normal / src / `<iframe>` de SoundCloud, Spotify o Mixcloud; ver `src/data/embed.ts`), SoundCloud del artista en redes (`soundcloud.com/shaunnolanhmusic`), y arranque arriba al recargar/volver.
-- 2026-10-25 (tarde): música real. 3 destacados de Beatport elegidos por el artista (Case 701, Through the Loss, Innocent Spt), releases desde su lista de Beatport (primera edición de cada tema), primer set de Radio Silence (SoundCloud "Best Warm Up"), Beatport en redes.
-- Faltan: sets 2 y 3, fecha/lugar del set 1, bios, fotos, email, press kit, key de Web3Forms, Spotify/Instagram/RA/Mixcloud.
+- Hechos: escena de la mano (Flow) en Music + footer; revisión del 23/10 (OG, 404, sitemap, JSON-LD, 7 animaciones); embeds para pegar; arranque arriba al recargar; SoundCloud y Beatport en redes; primer set de Radio Silence.
+- 2026-10-27: **Music rediseñada**: carrusel coverflow de 13 temas propios (portadas y links de Spotify), reproductor de Spotify sincronizado (iFrame API) y lista "Remixes & Coming soon". Commits locales sin push.
+- Faltan: sets 2 y 3, fecha/lugar del set 1, bios, fotos, email, press kit, key de Web3Forms, Spotify/Instagram/RA/Mixcloud en redes.
 
 ## Decisiones (y por qué)
 
 - **Textos en TS** (paridad EN/ES por tipos). **`null` = no confirmado**; JSON-LD solo con datos confirmados.
-- **Una luz naranja por sección.** El glow del hero pasó a azul (competía con Listen). En Music la brasa cae y la luz pasa al play destacado (`EXIT_FRAME` 52), que respira. El naranja solo anima en la brasa del play y en la chispa del formulario.
-- **Escena de Music:** solo avanza y queda en la mano vacía (coherente con el footer); sin pin; WebP + canvas (el seek de video en iOS salta); doble de tamaño a pedido (más blanda en Retina con el 720p); recorte desktop 900×620 desde y=100; `curves` + `mix-blend-mode: lighten` borran el borde de la caja; cuadros recién al primer scroll (si no, Lighthouse mobile bajaba a 78).
-- **Animaciones:** atadas al scroll con `animation-timeline` dentro de `@supports`; Firefox (sin soporte en estable) usa `src/scripts/reveal.ts` (IntersectionObserver). El estado oculto solo lo agrega JS. Reduced motion: `animation: none` explícito y estado final.
-- **Easing:** `--ease-slow` para entradas; `ease-in-out` en loops (la brasa); `linear` en animaciones atadas al scroll (el scroll marca el ritmo). Con `--ease-slow` saltaban y quedaban quietas.
-- **Cascada de releases por tiempo** (IO en todos los navegadores): en un timeline de scroll no hay milisegundos.
-- **View Transitions nativas entre documentos, no `<ClientRouter />`:** así los scripts inline siguen corriendo como cargas normales.
-- **OG con el Chrome headless instalado** (a ≥ 500 px el viewport es exacto), sin sumar `puppeteer-core` al proyecto.
-- **MusicGroup, no Person:** schema.org lo admite para solistas y tiene `genre`.
-- **El equipo pega los embeds** (eligen el contenido); el código detecta la plataforma. Links cortos frenan el build: no se pueden resolver sin red.
-- **Beatport bloquea bots (Cloudflare)**: no se lee beatport.com; los datos vinieron pegados por el equipo. *Through the Loss*: el embed usa la edición `29208623` y el link de la fila la `22465564` (mismo tema, otra edición).
-- **SoundCloud en modo visual** (oscuro, portada) con acento de `tokens.css`: el clásico es blanco y no se puede oscurecer.
-- **Arriba al recargar / atrás-adelante** (`scrollRestoration = 'manual'`, inline en `<head>`): la escena de Music se veía rara a mitad. Links con `#sección` y bfcache se respetan.
+- **Una luz naranja por sección.** Hero = Listen (glow del horizonte azul). Music = fachada del reproductor de Spotify (`[data-music-light]`), adonde pasa la brasa de la mano (`EXIT_FRAME` 52). El naranja solo anima en esa brasa y en la chispa del formulario.
+- **Escena de Music:** solo avanza y queda en la mano vacía; sin pin; WebP + canvas; recorte desktop 900×620 desde y=100; `curves` + `mix-blend-mode: lighten`; cuadros recién al primer scroll.
+- **Animaciones:** atadas al scroll dentro de `@supports`; Firefox usa `src/scripts/reveal.ts`. El estado oculto lo agrega solo JS. Easing: `--ease-slow` entradas, `ease-in-out` loops, `linear` scroll. View Transitions nativas, no `ClientRouter`.
+- **Spotify sin app (sin Premium):** la Web API en modo desarrollo exige Premium del dueño (feb 2026; además se fueron batch, `top-tracks`, `label`, `popularity`, `preview_url`). Se usa **oEmbed** público; artistas, sello y año van a mano. Portada 640 px cambiando el prefijo del CDN (no documentado; si falla, 300 px).
+- **Carrusel nativo, no Swiper:** sin dependencia (~40 KB menos), el swipe lo hace el navegador, y sin JS es una fila de links. Firefox lo ve plano con snap. Una portada por tema (hay tapas repetidas en EPs: lo eligieron así).
+- **iFrame API:** `loadEntity` (recomendado sobre `loadUri`) conserva `?theme=0`, pero **corta la reproducción**: si sonaba, `play()` en el siguiente `ready` (verificado con audio real). La API se carga en la primera interacción.
+- **Beatport bloquea bots (Cloudflare)**: no se lee beatport.com; los datos los pegó el equipo.
+- **Arriba al recargar / atrás-adelante**; links con `#sección` y bfcache se respetan.
 
 ## Aprendizajes y errores a evitar
 
-- Medir con `puppeteer-core` en el scratchpad (`--window-size` < 500 px no da viewport real). El dev server del usuario puede estar en 4321: usar `astro preview --port 4322` para medir el build.
-- **El minificador fusiona `animation` + `animation-timeline` en un shorthand inválido** (sin `var()` en el valor): usar longhands (`animation-name`, `-timing-function`, `-fill-mode`, `-timeline`).
-- Transiciones de entrada: ponerlas en el estado visible; si están en el oculto, hay un fundido de salida al cargar.
-- `overflow: hidden` rompe `sticky`; `isolation: isolate` anula `mix-blend-mode` contra la página.
-- `scaleY` sobre un `<g>` del SVG + `vector-effect: non-scaling-stroke` (sobre el `<svg>` el trazo también se aplasta).
-- Monterey: ffmpeg de `ffmpeg-static` (sin `drawtext`); `crop=1:1` necesita `rgb24` antes.
-- **`astro check`: leer la línea `- N errors`**, no hacer `tail`: así se escaparon 3 errores de tipos en `astro.config.mjs` (`process`) entre el 23 y el 25/10.
-- Lighthouse en esta Mac varía mucho con carga alta (un 85 aislado → 97–99 al repetir): repetir antes de concluir.
-- Para probar la luz del play o la chispa: `src` de prueba / `PUBLIC_WEB3FORMS_KEY` falsa solo en el build local, e interceptar Web3Forms; revertir y reconstruir antes del commit.
+- Medir con `puppeteer-core` en el scratchpad (se borra entre días: reinstalar). El dev server del usuario puede estar en 4321: medir el build con `astro preview --port 4322`.
+- **El minificador fusiona `animation` + `animation-timeline` en un shorthand inválido**: usar longhands.
+- Transiciones de entrada en el estado visible; `overflow: hidden` rompe `sticky`; `isolation` anula `mix-blend-mode`.
+- **`astro check`: leer la línea `- N errors`**, no hacer `tail` (así se escaparon 3 errores entre el 23 y el 25/10).
+- **Editar i18n con reemplazos exactos y `assert`**: un `re.sub` mal armado copió el archivo entero dentro de `en.ts`/`es.ts` (27/10; se restauró con `git checkout`).
+- El widget de Spotify tarda en pintarse: capturas antes de ~10 s lo muestran angosto aunque el iframe mida bien.
+- Lighthouse en esta Mac varía con carga alta: repetir antes de concluir. Mobile ronda 94–96 desde el carrusel.
+- Para probar luz/chispa/API: datos de prueba solo en build local y revertir antes del commit.
 
 ## Pendientes
 
-- [ ] Deploy de preview en Vercel desde la web (todo subido a GitHub el 2026-10-26, `fc858fd`).
-- [ ] **Cuando llegue el dominio real:** Vercel → Settings → Environment Variables → `SITE_URL=https://<dominio>` (sin barra final) y redeploy. Canonical, hreflang, `og:image`, sitemap, robots y JSON-LD salen de `site`. Hasta entonces Vercel usa `VERCEL_PROJECT_PRODUCTION_URL`; local, `localhost:4321`.
-- [ ] Probar en iPhone real: escena, footer con Ahorro de batería, fundido de idioma.
-- [ ] Sets 2 y 3 de Radio Silence: pegar su embed en `sets` cuando existan.
-- [ ] Links de Beatport por fila: solo hay IDs de Case 701, Through the Loss e Innocent Spt; el resto lleva al perfil.
-- [ ] Datos del artista: resto de las redes (llenan `sameAs`), bios, fotos, releases, email de booking, press kit, key de Web3Forms.
+- [ ] Deploy de preview en Vercel desde la web; ahí probar en iPhone real (escena, footer en Ahorro de batería, fundido de idioma, `play()` del reproductor, que Safari podría bloquear).
+- [ ] **Cuando llegue el dominio:** Vercel → Environment Variables → `SITE_URL=https://<dominio>` y redeploy (todo sale de `site`).
+- [ ] Sets 2 y 3 de Radio Silence; links de Beatport del resto de los temas.
+- [ ] Datos del artista: redes faltantes (llenan `sameAs`), bios, fotos, email de booking, press kit, key de Web3Forms.
 - [ ] Si se extiende el video en Flow: `npm run media`, revisar `EXIT_FRAME` y `npm run og`.
