@@ -1,19 +1,21 @@
 ---
-// Decorative scene next to the Music title: the hand drops the cigarette as you scroll.
+// Decorative scene between the hero and Music: the hand sits under the name and tagline, and drops
+// the cigarette behind the Music carousel as you scroll. Its ember is the hero's orange light.
 // It only moves forward and happens once per visit: when it ends, the hand stays empty
 // (also when scrolling back up). Frames come from `npm run media` (scripts/make-media.sh).
 
 const FRAMES = 60;
-// Frame (0-based) where the ember enters the bottom fade, per crop: from here on,
-// the featured play button takes the light.
-const EXIT_FRAME = { desktop: 52, mobile: 52 };
+// Frame (0-based) where the ember reaches the top of the covers and goes behind them, per crop:
+// from here on, the Spotify play button takes the light.
+const EXIT_FRAME = { desktop: 46, mobile: 48 };
 // Frame sizes (px): the canvas never draws larger than this, to avoid upscaling blur.
 const SIZE = { desktop: [900, 620], mobile: [480, 600] };
 ---
 
+<!-- Zero-height bridge right after the hero: the scene hangs from it, up into the hero and down into Music. -->
+<div class="bridge container" aria-hidden="true">
 <div
   class="scene"
-  aria-hidden="true"
   data-music-scene
   data-frames={FRAMES}
   data-exit-desktop={EXIT_FRAME.desktop}
@@ -27,6 +29,7 @@ const SIZE = { desktop: [900, 620], mobile: [480, 600] };
     <img src="/media/music/desktop/empty.webp" width={SIZE.desktop[0]} height={SIZE.desktop[1]} alt="" loading="lazy" />
   </picture>
   <canvas></canvas>
+</div>
 </div>
 
 <script>
@@ -84,10 +87,15 @@ const SIZE = { desktop: [900, 620], mobile: [480, 600] };
       return null;
     }
 
-    // Starts when the scene enters from the bottom (90% of the viewport) and ends when it reaches the top 20%.
+    // The scene is already on screen at load: 0 with the page at the top, 1 when the covers' center
+    // reaches 55% of the viewport (the cigarette has gone behind them by then).
+    const cover = document.querySelector<HTMLElement>('[data-carousel] .cf__slide');
     function progress() {
+      if (!cover) return 1;
       const vh = window.innerHeight;
-      return (0.9 * vh - scene!.getBoundingClientRect().top) / (0.7 * vh);
+      const box = cover.getBoundingClientRect();
+      const end = box.top + window.scrollY + box.height / 2 - 0.55 * vh;
+      return window.scrollY / Math.max(end, 0.25 * vh);
     }
 
     function resizeCanvas() {
@@ -169,13 +177,22 @@ const SIZE = { desktop: [900, 620], mobile: [480, 600] };
 </script>
 
 <style>
-  /* Behind the Music header, top right, starting in the section's top padding. Never catches clicks. */
+  /* No z-index or isolation here: a stacking context would cut the scene off from the page it blends with. */
+  .bridge {
+    position: relative;
+    height: 0;
+  }
+
+  /* Hangs from the bridge: the hand right under the tagline, the fall behind the Music header and covers.
+     z-index 1: above the hero (its fog would cover it), below Music's content (z-index 2). Never catches clicks. */
   .scene {
     position: absolute;
-    top: calc(var(--space-xl) * -0.8);
+    top: var(--scene-top);
     right: var(--gutter);
-    z-index: -1;
-    width: min(280px, 85%);
+    z-index: 1;
+    /* The smoke rises over the tagline; the hand sits right under it */
+    --scene-top: -6.5rem;
+    width: min(360px, 100% - 2 * var(--gutter));
     aspect-ratio: 480 / 600;
     pointer-events: none;
     /* The frame background is a touch darker than the page in every channel: `lighten` keeps the
@@ -190,6 +207,7 @@ const SIZE = { desktop: [900, 620], mobile: [480, 600] };
 
   @media (min-width: 48rem) {
     .scene {
+      --scene-top: -5.5rem;
       width: min(880px, 80%);
       aspect-ratio: 900 / 620;
       /* At this size the box reaches below the player: end the bottom fade earlier so nothing peeks out. */

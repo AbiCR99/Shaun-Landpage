@@ -19,24 +19,15 @@ const t = useTranslations(lang);
       <span>Nolanh</span>
     </h1>
     <p class="hero__tagline mono">{t.hero.tagline}</p>
-    <div class="hero__ctas">
-      <a class="btn btn--glow" href="#music">
-        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"></path></svg>
-        {t.hero.listen}
-      </a>
-      <a class="btn" href="#booking">{t.hero.booking}</a>
-    </div>
   </div>
 </section>
 
 <style>
+  /* Just the name and the tagline: the hand scene (MusicScene, right after the hero) fills the space
+     below them and drops the cigarette into the Music carousel. */
   .hero {
     position: relative;
-    display: grid;
-    align-items: end;
-    /* Fits a 375×667 phone without scrolling (header is 3.5rem) */
-    min-height: calc(100svh - 3.5rem);
-    padding-block: var(--space-l) var(--space-xl);
+    padding-block: var(--space-l);
     overflow: hidden;
     isolation: isolate;
   }
@@ -53,7 +44,7 @@ const t = useTranslations(lang);
     animation: drift 60s ease-in-out infinite alternate;
   }
 
-  /* A cold, moonlit glow on the horizon: blue, so Listen stays the hero's only orange light */
+  /* A cold, moonlit glow on the horizon: blue, so the cigarette's ember stays the hero's only orange light */
   .hero__glow {
     position: absolute;
     inset: auto -10% -35% -10%;
@@ -105,12 +96,5 @@ const t = useTranslations(lang);
     font-size: var(--step--1);
     text-transform: uppercase;
     color: var(--fog-300);
-  }
-
-  .hero__ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-s);
-    margin-top: var(--space-xs);
   }
 </style>

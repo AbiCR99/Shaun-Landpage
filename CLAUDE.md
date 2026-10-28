@@ -32,7 +32,7 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 
 - `src/styles/tokens.css` tiene la **paleta cerrada de 11 colores**, la escala tipográfica y el espaciado. No agregar colores ni escribir hex en otros archivos: usar los tokens, y `color-mix()` para transparencias.
 - Dominan los azules noche. **El naranja (`--glow-*`) es escaso: una sola fuente de luz por sección.** `.btn--glow` o el prop `glow` va como máximo una vez por sección:
-  - Hero = Listen (el glow del horizonte es azul: no compite)
+  - Hero = la brasa del cigarrillo de la escena de la mano (no hay botones en el hero; el glow del horizonte es azul: no compite). Cuando el cigarrillo cae detrás de las portadas, la luz pasa al play de Music.
   - Music = botón de la fachada del reproductor de Spotify (debajo del carrusel)
   - Sets = primer set
   - Booking = press kit
@@ -82,12 +82,14 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 - Un único video de Google Flow (`src/assets/video/hand-drop-source.mp4`, no se importa ni entra al build) se corta en dos: la escena de Music (2,4 s → 4,9 s, atada al scroll) y el footer (4,25 s → final, se reproduce una vez). El hero no tiene video.
 - **`public/media/` se genera con `npm run media` (`scripts/make-media.sh`, usa `ffmpeg-static`), y `public/og.png` + `public/apple-touch-icon.png` con `npm run og` (`scripts/make-og.sh`, Chrome headless). Nunca editar esos archivos a mano: cambiar el script/plantilla y regenerar.**
 - El fondo del video (`#081222`) se corrige con `curves` para quedar apenas por debajo de `#070D18` en los tres canales; la escena usa `mix-blend-mode: lighten` para que el fondo desaparezca contra la página. Por eso el contenedor `.music` no puede tener `isolation`. No agregar ese color a la paleta.
-- **Escena de Music** (`MusicScene.astro`): 60 WebP en `<canvas>` (desktop 900×620, mobile 480×600), arriba a la derecha del título, detrás del texto y del reproductor. Tamaño: `min(880px, 80%)` en desktop y `min(280px, 85%)` en mobile. El recorte de desktop saca los 100 px de arriba para que la mano quede al lado del título y no detrás del reproductor; el fundido inferior termina al 80 % para que nada asome debajo del reproductor.
+- **Escena de la mano** (`MusicScene.astro`, entre `<Hero>` y `<Music>` en `HomePage.astro`): 60 WebP en `<canvas>` (desktop 900×620, mobile 480×600). Cuelga de un puente de alto 0 (`.bridge`): la mano queda debajo de la tagline (el humo sube sobre ella) y el cigarrillo cae detrás del header de Music y de las portadas. Tamaño: `min(880px, 80%)` en desktop y `min(360px, 100% - 2 gutters)` en mobile; la altura la ajusta `--scene-top`.
+  - Capas: escena `z-index: 1` (encima del hero, cuyo humo la taparía), `.section__head` y `.music__tracks` de Music `z-index: 2`. Ni el puente ni `.music` llevan `z-index` ni `isolation`: un contexto de apilamiento cortaría el `mix-blend-mode`.
+  - El hero ya no ocupa toda la pantalla: nombre + tagline, y la mano llena el espacio hasta Music. En 375×667 entran el nombre, la tagline y la mano.
+  - Progreso del scroll: 0 con la página arriba, 1 cuando el centro de las portadas llega al 55 % del viewport.
   - Solo avanza: el scroll controla la caída pero nunca la rebobina. Al terminar queda `empty.webp` (mano vacía) para el resto de la visita; al recargar se repite.
-  - La luz pasa de la brasa al botón `[data-music-light]` (fachada del reproductor de Spotify): el JS le saca `.embed__play--glow` y se lo devuelve en `EXIT_FRAME` (por recorte, en `MusicScene.astro`; revisarlo si se regeneran los cuadros).
+  - La luz pasa de la brasa al botón `[data-music-light]` (fachada del reproductor de Spotify): el JS le saca `.embed__play--glow` y se lo devuelve en `EXIT_FRAME`, el cuadro en que la brasa llega al borde superior de las portadas (por recorte, en `MusicScene.astro`; revisarlo si se regeneran los cuadros o cambia el alto entre el hero y el carrusel). La brasa baja del 21 % al 90 % del cuadro (desktop) y del 28 % al 99 % (mobile).
   - El HTML trae el estado final (mano vacía + play encendido): así queda sin JS y con reduced-motion.
   - Los cuadros se descargan con el primer scroll/toque, no al cargar (si no, bloquean el hilo principal en mobile). El canvas nunca dibuja más grande que el cuadro (evita la borrosidad).
-- Listen (hero) queda siempre con `.btn--glow`.
 - Footer: `<video preload="none">` que arranca con `IntersectionObserver` al 40 % y queda en el último cuadro. Si `play()` falla (iOS en Ahorro de batería) o el video da error, muestra `last.webp`. La escena tiene que ser más baja que el footer para que el fundido superior no se corte.
 
 ## Forma de trabajar

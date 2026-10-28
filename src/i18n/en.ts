@@ -22,8 +22,6 @@ export const en = {
   },
   hero: {
     tagline: 'Progressive House · Deep House · Organic House',
-    listen: 'Listen',
-    booking: 'Booking',
   },
   music: {
     title: 'Music',

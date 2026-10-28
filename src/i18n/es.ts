@@ -22,8 +22,6 @@ export const es: Dictionary = {
   },
   hero: {
     tagline: 'Progressive House · Deep House · Organic House',
-    listen: 'Escuchar',
-    booking: 'Booking',
   },
   music: {
     title: 'Música',

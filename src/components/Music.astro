@@ -1,5 +1,4 @@
 ---
-import MusicScene from './MusicScene.astro';
 import SpotifyPlayer from './SpotifyPlayer.astro';
 import TrackCarousel from './TrackCarousel.astro';
 import { beatportProfile, releases } from '../data/music';
@@ -15,7 +14,6 @@ const t = useTranslations(lang);
 
 <section class="section" id="music" aria-labelledby="music-title">
   <div class="container music">
-    <MusicScene />
     <header class="section__head">
       <h2 class="section__title" id="music-title">{t.music.title}</h2>
       <p class="section__lead">{t.music.lead}</p>
@@ -67,9 +65,12 @@ const t = useTranslations(lang);
 </script>
 
 <style>
-  /* Anchor for the decorative scene. No `isolation` here: the scene blends with the page itself (see MusicScene). */
-  .music {
+  /* In front of the hand scene (MusicScene, z-index 1): the cigarette falls behind the header and the covers.
+     z-index on the children only. No `isolation` on .music: the scene blends with the page itself. */
+  .music :global(.section__head),
+  .music__tracks {
     position: relative;
+    z-index: 2;
   }
 
   .music__tracks {
