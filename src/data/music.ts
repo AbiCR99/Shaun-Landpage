@@ -25,140 +25,133 @@ export type Release = {
   url?: string | null;
 };
 
-// ─── Carousel (Music): Shaun's own tracks and collaborations, no remixes ───────────────────────
-// CÓMO SUMAR UN TEMA: agregalo acá con su link de Spotify (Compartir → Copiar link del tema) y el de
-// Beatport si existe, corré `npm run spotify:sync` (baja la portada a src/assets/covers/ y completa
-// src/data/spotify-tracks.json) y commiteá todo. Artistas, sello y año van a mano (oEmbed no los da).
-export type Track = {
+// ─── Carousel (Music): Shaun's releases (singles, EPs, albums), one cover each, no remixes ──────────
+// CÓMO SUMAR UN LANZAMIENTO: agregalo acá (de lo más nuevo a lo más viejo) con el link de Spotify del
+// álbum/EP (Compartir → Copiar link del álbum) o, si es un single, el del tema; corré `npm run spotify:sync`
+// (baja la portada a src/assets/covers/ y completa src/data/spotify-tracks.json) y commiteá todo.
+// Título, tipo, artistas, sello y año van a mano (oEmbed no los da).
+export type CarouselRelease = {
   title: string;
+  type: 'single' | 'EP' | 'album';
   artists: string;
+  /** `null` = pending. Self-released records use `selfReleased` instead (no label shown, no placeholder). */
   label: string | null;
+  selfReleased?: true;
   year: number | null;
-  /** open.spotify.com/track/… link. `null` = pending (the player shows "Spotify pending"). */
+  /** open.spotify.com/album/… (EP/album) or /track/… (single). `null` = pending ("Spotify pending"). */
   spotify: string | null;
-  /** beatport.com/track/… link, if any */
+  /** beatport.com link of the release, if any */
   beatport: string | null;
+  /** Shaun's tracks on it (cover alt text) */
+  tracks: string[];
+  /**
+   * Only for releases shared with other artists (e.g. a label compilation): Shaun's tracks on Spotify.
+   * The player plays these one by one (compact embed + a track switch) instead of the whole album.
+   */
+  ownTracks?: { title: string; spotify: string }[];
   /** true = keep it out of the carousel */
   hide?: boolean;
 };
 
-// Order = carousel order (newest first). Artists/label/year: the artist's Beatport list, Spotify's public
-// track pages and the team (2026-10-27): the Hibiki EP (Dublucid) and Sky Burns Gold (independent) aren't on Beatport.
-export const tracks: Track[] = [
+// Titles, types and track counts: Spotify's public album pages (2026-10-27). Labels/years: Beatport list + team.
+export const carouselReleases: CarouselRelease[] = [
   {
     title: 'Hibiki',
+    type: 'EP',
     artists: 'Shaun Nolanh',
     label: 'Dublucid',
     year: 2026,
-    spotify: 'https://open.spotify.com/intl-es/track/43rpPSVBGXSS1scP0jHWKz?si=54783f8a7f57467d',
+    spotify: 'https://open.spotify.com/album/4jzqq1ubygzFTSCu9jJBYY?si=9vnQLOYaQYKIIWX5oks3bg',
     beatport: null,
-  },
-  {
-    title: 'Hyōka',
-    artists: 'Shaun Nolanh',
-    label: 'Dublucid',
-    year: 2026,
-    spotify: 'https://open.spotify.com/intl-es/track/5niBezsERwlfrd9w421ZdX?si=611019c185754050',
-    beatport: null,
-  },
-  {
-    title: 'Kasumi',
-    artists: 'Shaun Nolanh',
-    label: 'Dublucid',
-    year: 2026,
-    spotify: 'https://open.spotify.com/intl-es/track/7AlO2k2KmtC6pmjkp8QKbX?si=238f9dd0c5594c9d',
-    beatport: null,
+    tracks: ['Hibiki', 'Hyōka', 'Kasumi'],
   },
   {
     title: 'Sky Burns Gold',
+    type: 'single',
     artists: 'Shaun Nolanh',
-    label: 'Independent',
+    label: null,
+    selfReleased: true,
     year: 2026,
     spotify: 'https://open.spotify.com/intl-es/track/6mQ9MUjChsWguS0CQNRqEJ?si=7b7ac38699024580',
     beatport: null,
-  },
-  {
-    title: 'Ultimate Desire',
-    artists: 'Stan Seba, Shaun Nolanh',
-    label: '3rd Avenue',
-    year: 2026,
-    spotify: 'https://open.spotify.com/intl-es/track/5n0dnHkn5EGkn94bTcSPb9?si=396b59c2c3074ac4',
-    beatport: null,
+    tracks: ['Sky Burns Gold'],
   },
   {
     title: 'Case 701',
+    type: 'EP',
     artists: 'Stan Seba, Shaun Nolanh',
     label: '3rd Avenue',
     year: 2026,
-    spotify: 'https://open.spotify.com/intl-es/track/00zcWZKX4Wf691ySTqK9tK?si=ef60861a82db486d',
+    spotify: 'https://open.spotify.com/album/2pp4VLWjwM4tD9gjK5Erby?si=thZxRqESSlGW53tKGeqLEg',
+    // TO CONFIRM: track link until the team sends the EP's Beatport link
     beatport: 'https://www.beatport.com/track/case-701/30654526',
+    tracks: ['Ultimate Desire', 'Case 701'],
   },
   {
     title: 'I Drove All Night to Feel This',
+    type: 'single',
     artists: 'Shaun Nolanh',
     label: 'BBop Music',
     year: 2026,
     spotify: 'https://open.spotify.com/intl-es/track/5Xd1cOtJfvpVCzQig19BhB?si=f56e0b6b06814488',
     beatport: null,
+    tracks: ['I Drove All Night to Feel This'],
   },
   {
     title: 'Chrome Butterflies',
+    type: 'EP',
     artists: 'Stan Seba, Shaun Nolanh',
     label: '3rd Avenue',
     year: 2025,
-    spotify: 'https://open.spotify.com/intl-es/track/0mkoBLHcXAdSfyoMpBQkSf?si=b9ac0c0c52024960',
-    beatport: null,
-  },
-  {
-    title: 'Magnetic Bloom',
-    artists: 'Stan Seba, Shaun Nolanh',
-    label: '3rd Avenue',
-    year: 2025,
-    spotify: 'https://open.spotify.com/intl-es/track/7JiOIgYYJkbn6vboNKhk33?si=6cc37983bd3240e3',
-    beatport: null,
-  },
-  {
-    title: 'Through the Loss',
-    artists: 'Stan Seba, Shaun Nolanh',
-    label: '3rd Avenue',
-    year: 2025,
-    spotify: 'https://open.spotify.com/intl-es/track/6cgNUmAWqONB6UKGfObRUe?si=13dfb5c2df294ac1',
+    spotify: 'https://open.spotify.com/album/4AA7GiRnGb5ojIdriLQAmj?si=SiY9R8bKR9GQvdAe33LHhA',
+    // TO CONFIRM: track link (Through the Loss) until the team sends the EP's Beatport link
     beatport: 'https://www.beatport.com/track/through-the-loss/22465564',
+    tracks: ['Chrome Butterflies', 'Magnetic Bloom', 'Through the Loss'],
   },
   {
     title: '300 Mg',
+    type: 'single',
     artists: 'Shaun Nolanh',
     label: 'Mustache Crew Records',
     year: 2025,
     spotify: 'https://open.spotify.com/intl-es/track/7tHv1n8k9h7ZLupRcJTeq6?si=117ebc8225034d47',
     beatport: null,
+    tracks: ['300 Mg'],
   },
   {
-    title: 'Innocent Spt',
+    // Label EP with six tracks by three artists: only Shaun's two are played.
+    title: 'Three of a Kind #033',
+    type: 'EP',
     artists: 'Shaun Nolanh',
     label: '3rd Avenue',
     year: 2025,
-    spotify: 'https://open.spotify.com/intl-es/track/0Y1UkChFJECfD3NpKSQVBU?si=678361d3fa3f49c6',
+    spotify: 'https://open.spotify.com/album/6qoFARj1zn1GYSP2K3hZK6?si=z90a0rBzSpmFE0pHfrx0vA',
+    // TO CONFIRM: track link (Innocent Spt) until the team sends the EP's Beatport link
     beatport: 'https://www.beatport.com/track/innocent-spt/30470069',
-  },
-  {
-    title: 'Groove You Wish You Made',
-    artists: 'Shaun Nolanh',
-    label: '3rd Avenue',
-    year: 2025,
-    spotify: 'https://open.spotify.com/intl-es/track/7Max98kkWKi1h9PQTTh8Lh?si=a428123d030a43de',
-    beatport: null,
+    tracks: ['Innocent Spt', 'Groove You Wish You Made'],
+    ownTracks: [
+      { title: 'Innocent Spt', spotify: 'https://open.spotify.com/intl-es/track/0Y1UkChFJECfD3NpKSQVBU?si=678361d3fa3f49c6' },
+      { title: 'Groove You Wish You Made', spotify: 'https://open.spotify.com/intl-es/track/7Max98kkWKi1h9PQTTh8Lh?si=a428123d030a43de' },
+    ],
   },
 ];
 
-/** The carousel starts on this title. */
-export const initialTrack = 'Case 701';
+/** The carousel starts on this release. */
+export const initialRelease = 'Case 701';
 
-/** Spotify track id from any open.spotify.com track link (intl-xx/, embed/, ?si=… all accepted). */
-export const spotifyTrackId = (link: string) =>
-  link.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(?:embed\/)?track\/([A-Za-z0-9]+)/)?.[1] ?? null;
+/** Kind and id from any open.spotify.com album/track link (intl-xx/, embed/, ?si=… all accepted). */
+export const spotifyEntity = (link: string) => {
+  const match = link.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(?:embed\/)?(album|track)\/([A-Za-z0-9]+)/);
+  return match ? { kind: match[1] as 'album' | 'track', id: match[2] } : null;
+};
 
-/** File name for a track's cover in src/assets/covers/ (shared by the sync script and the carousel). */
+/** Canonical link (the key in spotify-tracks.json and the player's URL), or `null`. */
+export const spotifyUrl = (link: string | null) => {
+  const entity = link ? spotifyEntity(link) : null;
+  return entity ? `https://open.spotify.com/${entity.kind}/${entity.id}` : null;
+};
+
+/** File name for a release's cover in src/assets/covers/ (shared by the sync script and the carousel). */
 export const coverSlug = (title: string) =>
   title
     .toLowerCase()
@@ -171,7 +164,7 @@ export const coverSlug = (title: string) =>
 export const beatportProfile = 'https://www.beatport.com/artist/shaun-nolanh/1291888';
 
 export const releases: Release[] = [
-  // Remixes & coming soon. Shaun's own tracks and collabs live in `tracks` (the carousel).
+  // Remixes & coming soon. Shaun's own releases live in `carouselReleases` (the carousel).
   { title: 'Neverl3vel (Shaun Nolanh Remix)', artists: 'Roberto Caceres & Jose Tabarez', label: null, year: null, type: 'remix', upcoming: true },
   { title: null, artists: 'Shaun Nolanh & Praneeth.D', label: null, year: null, type: 'original', upcoming: true },
   {

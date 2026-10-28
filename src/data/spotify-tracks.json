@@ -1,20 +1,8 @@
 {
-  "https://open.spotify.com/track/43rpPSVBGXSS1scP0jHWKz": {
+  "https://open.spotify.com/album/4jzqq1ubygzFTSCu9jJBYY": {
     "title": "Hibiki",
-    "uri": "spotify:track:43rpPSVBGXSS1scP0jHWKz",
+    "uri": "spotify:album:4jzqq1ubygzFTSCu9jJBYY",
     "cover": "hibiki.jpg",
-    "coverSize": 640
-  },
-  "https://open.spotify.com/track/5niBezsERwlfrd9w421ZdX": {
-    "title": "Hyōka",
-    "uri": "spotify:track:5niBezsERwlfrd9w421ZdX",
-    "cover": "hyoka.jpg",
-    "coverSize": 640
-  },
-  "https://open.spotify.com/track/7AlO2k2KmtC6pmjkp8QKbX": {
-    "title": "Kasumi",
-    "uri": "spotify:track:7AlO2k2KmtC6pmjkp8QKbX",
-    "cover": "kasumi.jpg",
     "coverSize": 640
   },
   "https://open.spotify.com/track/6mQ9MUjChsWguS0CQNRqEJ": {
@@ -23,15 +11,9 @@
     "cover": "sky-burns-gold.jpg",
     "coverSize": 640
   },
-  "https://open.spotify.com/track/5n0dnHkn5EGkn94bTcSPb9": {
-    "title": "Ultimate Desire",
-    "uri": "spotify:track:5n0dnHkn5EGkn94bTcSPb9",
-    "cover": "ultimate-desire.jpg",
-    "coverSize": 640
-  },
-  "https://open.spotify.com/track/00zcWZKX4Wf691ySTqK9tK": {
+  "https://open.spotify.com/album/2pp4VLWjwM4tD9gjK5Erby": {
     "title": "Case 701",
-    "uri": "spotify:track:00zcWZKX4Wf691ySTqK9tK",
+    "uri": "spotify:album:2pp4VLWjwM4tD9gjK5Erby",
     "cover": "case-701.jpg",
     "coverSize": 640
   },
@@ -41,22 +23,10 @@
     "cover": "i-drove-all-night-to-feel-this.jpg",
     "coverSize": 640
   },
-  "https://open.spotify.com/track/0mkoBLHcXAdSfyoMpBQkSf": {
+  "https://open.spotify.com/album/4AA7GiRnGb5ojIdriLQAmj": {
     "title": "Chrome Butterflies",
-    "uri": "spotify:track:0mkoBLHcXAdSfyoMpBQkSf",
+    "uri": "spotify:album:4AA7GiRnGb5ojIdriLQAmj",
     "cover": "chrome-butterflies.jpg",
-    "coverSize": 640
-  },
-  "https://open.spotify.com/track/7JiOIgYYJkbn6vboNKhk33": {
-    "title": "Magnetic Bloom",
-    "uri": "spotify:track:7JiOIgYYJkbn6vboNKhk33",
-    "cover": "magnetic-bloom.jpg",
-    "coverSize": 640
-  },
-  "https://open.spotify.com/track/6cgNUmAWqONB6UKGfObRUe": {
-    "title": "Through the Loss",
-    "uri": "spotify:track:6cgNUmAWqONB6UKGfObRUe",
-    "cover": "through-the-loss.jpg",
     "coverSize": 640
   },
   "https://open.spotify.com/track/7tHv1n8k9h7ZLupRcJTeq6": {
@@ -65,16 +35,10 @@
     "cover": "300-mg.jpg",
     "coverSize": 640
   },
-  "https://open.spotify.com/track/0Y1UkChFJECfD3NpKSQVBU": {
-    "title": "Innocent Spt",
-    "uri": "spotify:track:0Y1UkChFJECfD3NpKSQVBU",
-    "cover": "innocent-spt.jpg",
-    "coverSize": 640
-  },
-  "https://open.spotify.com/track/7Max98kkWKi1h9PQTTh8Lh": {
-    "title": "Groove You Wish You Made",
-    "uri": "spotify:track:7Max98kkWKi1h9PQTTh8Lh",
-    "cover": "groove-you-wish-you-made.jpg",
+  "https://open.spotify.com/album/6qoFARj1zn1GYSP2K3hZK6": {
+    "title": "Three of a Kind #033",
+    "uri": "spotify:album:6qoFARj1zn1GYSP2K3hZK6",
+    "cover": "three-of-a-kind-033.jpg",
     "coverSize": 640
   }
 }

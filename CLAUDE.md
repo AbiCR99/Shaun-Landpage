@@ -23,7 +23,7 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 
 ## Datos y contenido
 
-- `src/data/site.ts`: URL del press kit, email de booking y redes. `src/data/music.ts`: embed destacado, releases y sets de Radio Silence.
+- `src/data/site.ts`: URL del press kit, email de booking y redes. `src/data/music.ts`: lanzamientos del carrusel, remixes/próximos y sets de Radio Silence.
 - **`null` significa "todavía no confirmado".** El componente muestra entonces un marcador visible, por ejemplo `<span class="pending">[RELEASE PENDIENTE]</span>`.
 - Nunca inventar releases, sellos, fechas, supports ni citas. Si un dato no está confirmado, el campo queda en `null`.
 - Los archivos de i18n son TS, no JSON, para poder dejar comentarios "TO CONFIRM" al lado de los datos sin verificar.
@@ -68,13 +68,15 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
 ## Music: carrusel + reproductor de Spotify
 
 - **Carrusel** (`TrackCarousel.astro`): coverflow nativo, sin dependencias. `scroll-snap` para el swipe, el giro 3D con `animation-timeline: view(inline)` dentro de `@supports` (longhands), reflejo con `-webkit-box-reflect`. Un script chico convierte cada portada en botón "Seleccionar …", maneja flechas/teclado y emite `track:change`. Sin JS: fila de links a Spotify. Reduced motion: sin 3D. Sin naranja.
-- **Reproductor** (`SpotifyPlayer.astro`): Spotify iFrame API, cargada recién en la primera interacción. Cambiar de portada → `loadEntity(url?theme=0)`; `loadEntity` corta la reproducción, así que si estaba sonando se llama `play()` en el siguiente `ready`. La fachada es `Embed.astro` en modo `controlled` y lleva `[data-music-light]` (la luz de la mano pasa ahí). El reproductor de Spotify queda visible (términos de Spotify); si la API falla o tarda 8 s, link "Escuchar en Spotify".
+- **Reproductor** (`SpotifyPlayer.astro`): Spotify iFrame API, cargada recién en la primera interacción. Cambiar de portada → `loadEntity(url?theme=0)` (álbum o tema); `loadEntity` corta la reproducción, así que si estaba sonando se llama `play()` en el siguiente `ready`. La fachada es `Embed.astro` en modo `controlled` y lleva `[data-music-light]` (la luz de la mano pasa ahí). El reproductor de Spotify queda visible (términos de Spotify); si la API falla o tarda 8 s, link "Escuchar en Spotify".
 - **Sin app de Spotify:** la Web API exige que el dueño tenga Premium. Se usa **oEmbed** (público): `npm run spotify:sync` baja título y portada (640 px, por un prefijo no documentado del CDN; si falla, 300 px) a `src/assets/covers/` y escribe `src/data/spotify-tracks.json` (commiteado). En Vercel corre en `prebuild` y nunca frena el deploy; en local es manual.
-- **Cómo sumar un tema al carrusel:**
-  1. En `src/data/music.ts` → `tracks`, agregar `{ title, artists, label, year, spotify, beatport }` en su lugar (de lo más nuevo a lo más viejo). `spotify` = link del tema (Compartir → Copiar link; sirve con `intl-es/` y `?si=`). `beatport` = link del tema o `null`. Artistas, sello y año van a mano: oEmbed no los da.
-  2. `npm run spotify:sync` → baja la portada y completa el JSON.
+- **Una portada por lanzamiento** (single, EP o álbum): `carouselReleases` en `src/data/music.ts`. Debajo de la portada van título, artistas y una línea mono `EP · Dublucid · 2026`. `selfReleased: true` = sin sello (no se muestra sello ni marcador). EP/álbum → embed de álbum de 352 px (con la lista de temas); single → embed compacto de 152 px; el alto se reserva en `.sp__stage` y cambia con una transición.
+  - Lanzamientos compartidos con otros artistas (p. ej. *Three of a Kind #033*, compilado del sello): `ownTracks` con los temas de Shaun. El reproductor toca solo esos, uno por uno (embed compacto + botones para elegir el tema).
+- **Cómo sumar un lanzamiento al carrusel:**
+  1. En `carouselReleases`, agregar `{ title, type, artists, label (o selfReleased: true), year, spotify, beatport, tracks }` en su lugar (de lo más nuevo a lo más viejo). `spotify` = link del álbum/EP (Compartir → Copiar link del álbum) o, si es single, el del tema; sirve con `intl-es/` y `?si=`. `beatport` = link del release o `null`. `tracks` = títulos de los temas de Shaun (van en el `alt`). Título, tipo, artistas, sello y año van a mano: oEmbed no los da.
+  2. `npm run spotify:sync` → baja la portada (una por lanzamiento, `<slug del título>.jpg`) y completa el JSON.
   3. `npm run build`, revisar y commitear `music.ts`, el JSON y la portada nueva.
-  - `hide: true` lo saca del carrusel; `initialTrack` define la portada inicial (hoy *Case 701*).
+  - `hide: true` lo saca del carrusel; `initialRelease` define la portada inicial (hoy el EP *Case 701*).
 - **Lista de abajo** (`releases`): solo remixes y próximos ("Remixes & Coming soon").
 
 ## Video de la mano y el cigarrillo (Music + footer)

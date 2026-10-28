@@ -1,12 +1,12 @@
 ---
-// Coverflow carousel of Shaun's tracks. Native, no dependencies:
+// Coverflow carousel of Shaun's releases (one cover per single/EP/album). Native, no dependencies:
 // - scroll-snap gives the touch swipe and inertia (the browser's own gesture, smooth on iPhone);
 // - the 3D tilt is a scroll-driven animation (animation-timeline: view(inline)) inside @supports;
 // - a small script handles buttons, keyboard and which cover is active (it emits `track:change`).
-// Without JS it is a scrollable row of covers, each one a link to the track.
+// Without JS it is a scrollable row of covers, each one a link to the release.
 import type { ImageMetadata } from 'astro';
 import { Picture } from 'astro:assets';
-import { coverSlug, initialTrack, spotifyTrackId, tracks } from '../data/music';
+import { carouselReleases, coverSlug, initialRelease, spotifyUrl } from '../data/music';
 import synced from '../data/spotify-tracks.json';
 import { useTranslations, type Lang } from '../i18n/utils';
 
@@ -21,24 +21,30 @@ const t = useTranslations(lang);
 const covers = import.meta.glob<{ default: ImageMetadata }>('../assets/covers/*.jpg', { eager: true });
 const coverFor = (title: string) => covers[`../assets/covers/${coverSlug(title)}.jpg`]?.default;
 
-const items = tracks
-  .filter((track) => !track.hide)
-  .map((track) => {
-    const id = track.spotify ? spotifyTrackId(track.spotify) : null;
-    const meta = id ? (synced as Record<string, { uri: string }>)[`https://open.spotify.com/track/${id}`] : undefined;
-    const cover = coverFor(track.title);
-    if (!cover) console.warn(`[carousel] Missing cover for "${track.title}": run \`npm run spotify:sync\` (or add src/assets/covers/${coverSlug(track.title)}.jpg).`);
+const items = carouselReleases
+  .filter((release) => !release.hide)
+  .map((release) => {
+    const url = spotifyUrl(release.spotify);
+    const meta = url ? (synced as Record<string, { uri: string }>)[url] : undefined;
+    const cover = coverFor(release.title);
+    if (!cover) console.warn(`[carousel] Missing cover for "${release.title}": run \`npm run spotify:sync\` (or add src/assets/covers/${coverSlug(release.title)}.jpg).`);
+    // Compilations play only Shaun's tracks, one by one: [{ title, url }]
+    const own = release.ownTracks?.map((track) => ({ title: track.title, url: spotifyUrl(track.spotify) })).filter((track) => track.url);
     return {
-      ...track,
+      ...release,
       cover,
-      spotifyUrl: id ? `https://open.spotify.com/track/${id}` : null,
-      uri: meta?.uri ?? (id ? `spotify:track:${id}` : null),
+      url,
+      uri: meta?.uri ?? null,
+      own: own?.length ? JSON.stringify(own) : undefined,
+      // `EP · Dublucid · 2026`; self-released: `Single · 2026` (no label, no placeholder)
+      meta: [t.music.types[release.type], release.selfReleased ? null : (release.label ?? '[SELLO]'), release.year ?? '[AÑO]'].filter(Boolean).join(' · '),
     };
   });
 
-const initial = Math.max(0, items.findIndex((item) => item.title === initialTrack));
+const initial = Math.max(0, items.findIndex((item) => item.title === initialRelease));
 const active = items[initial];
-const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.title} — ${item.artists}`;
+const coverAlt = (item: (typeof items)[number]) =>
+  `${t.music.coverOf} ${item.title} — ${item.artists}${item.type === 'single' ? '' : ` (${item.tracks.join(', ')})`}`;
 ---
 
 <section
@@ -58,13 +64,15 @@ const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.ti
           aria-label={`${i + 1} / ${items.length}`}
           data-title={item.title}
           data-artists={item.artists}
-          data-spotify={item.spotifyUrl ?? undefined}
+          data-meta={item.meta}
+          data-spotify={item.url ?? undefined}
           data-uri={item.uri ?? undefined}
+          data-own={item.own}
           data-beatport={item.beatport ?? undefined}
         >
           <a
             class="cf__cover"
-            href={item.spotifyUrl ?? item.beatport ?? undefined}
+            href={item.url ?? item.beatport ?? undefined}
             target="_blank"
             rel="noopener"
             aria-current={i === initial ? 'true' : undefined}
@@ -97,6 +105,7 @@ const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.ti
     <div class="cf__info">
       <p class="cf__title" data-now-title>{active.title}</p>
       <p class="cf__artists" data-now-artists>{active.artists}</p>
+      <p class="cf__meta mono" data-now-meta>{active.meta}</p>
     </div>
     <button class="cf__nav" type="button" data-dir="1" aria-label={t.music.next} hidden>
       <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>
@@ -112,6 +121,7 @@ const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.ti
     const slides = [...root.querySelectorAll<HTMLElement>('.cf__slide')];
     const nowTitle = root.querySelector<HTMLElement>('[data-now-title]')!;
     const nowArtists = root.querySelector<HTMLElement>('[data-now-artists]')!;
+    const nowMeta = root.querySelector<HTMLElement>('[data-now-meta]')!;
     const live = root.querySelector<HTMLElement>('[data-live]')!;
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let active = Number(root.dataset.initial);
@@ -174,6 +184,7 @@ const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.ti
       });
       nowTitle.textContent = slide.dataset.title!;
       nowArtists.textContent = slide.dataset.artists!;
+      nowMeta.textContent = slide.dataset.meta!;
       if (interacted) live.textContent = `${slide.dataset.title} — ${slide.dataset.artists}`;
       root!.dispatchEvent(new CustomEvent('track:change', { bubbles: true, detail: { index: i, ...slide.dataset } }));
     }
@@ -203,7 +214,7 @@ const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.ti
       slides[Math.max(0, Math.min(slides.length - 1, keys[e.key]))].querySelector<HTMLElement>('.cf__cover')!.focus({ preventScroll: true });
     });
 
-    // Start centered on the initial track (Case 701), without animation.
+    // Start centered on the initial release (Case 701), without animation.
     goTo(active, 'auto');
   }
 </script>
@@ -310,8 +321,15 @@ const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.ti
     line-height: 1.2;
   }
 
-  .cf__artists {
+  .cf__artists,
+  .cf__meta {
     color: var(--fog-300);
+  }
+
+  .cf__meta {
+    margin-top: 0.25rem;
+    font-size: var(--step--1);
+    text-transform: uppercase;
   }
 
   .cf__nav {

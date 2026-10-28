@@ -4,10 +4,12 @@
 // (click on the facade, or the first time the visitor changes cover). Then:
 //   createController(...) once, and on every `track:change` → loadEntity(url?theme=0).
 //   loadEntity stops playback (verified), so if it was playing we call play() on the next `ready`.
+// EPs/albums use the album embed (352px, with its track list); singles the compact one (152px).
+// Releases shared with other artists (`ownTracks`) play only Shaun's tracks, one by one, with a track switch.
 // The real Spotify player stays visible once loaded (Spotify's terms). If the API is blocked or slow,
-// a plain "Listen on Spotify" link to the active track is shown instead.
+// a plain "Listen on Spotify" link to the active release is shown instead.
 import Embed from './Embed.astro';
-import { initialTrack, spotifyTrackId, tracks } from '../data/music';
+import { carouselReleases, initialRelease, spotifyUrl } from '../data/music';
 import { useTranslations, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -17,21 +19,25 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-const visible = tracks.filter((track) => !track.hide);
-const start = visible.find((track) => track.title === initialTrack) ?? visible[0];
-const startId = start.spotify ? spotifyTrackId(start.spotify) : null;
-const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : null;
+const HEIGHT = { compact: 152, album: 352 };
+const visible = carouselReleases.filter((release) => !release.hide);
+const start = visible.find((release) => release.title === initialRelease) ?? visible[0];
+const startSpotify = spotifyUrl(start.ownTracks?.[0]?.spotify ?? start.spotify);
+const startHeight = start.type === 'single' || start.ownTracks ? HEIGHT.compact : HEIGHT.album;
 ---
 
-<div class="sp" data-spotify-player data-spotify={startSpotify ?? undefined}>
+<div class="sp" data-spotify-player data-spotify={startSpotify ?? undefined} data-compact={HEIGHT.compact} data-album={HEIGHT.album}>
   <a class="sp__buy mono" href={start.beatport ?? undefined} target="_blank" rel="noopener" hidden={!start.beatport} data-buy>
     {t.music.buyOnBeatport} <span aria-hidden="true">↗</span>
   </a>
 
-  <div class="sp__stage">
+  <!-- Only for releases shared with other artists: Shaun's tracks, one button each (filled by the script) -->
+  <div class="sp__tracks" role="group" aria-label={t.music.ownTracks} hidden data-own-tracks></div>
+
+  <div class="sp__stage" style={`--sp-h: ${startHeight}px`} data-stage>
     <!-- Facade: the section's single orange light (the hand's ember passes to it, see MusicScene) -->
     <div class="sp__facade" data-facade hidden={!startSpotify}>
-      <Embed embed={{ link: null, title: t.music.listenOnSpotify }} lang={lang} glow controlled={{ name: 'Spotify', height: 152 }} />
+      <Embed embed={{ link: null, title: t.music.listenOnSpotify }} lang={lang} glow controlled={{ name: 'Spotify', height: startHeight }} />
     </div>
     <!-- createController replaces this element with Spotify's iframe -->
     <div class="sp__frame" data-frame hidden><div data-mount></div></div>
@@ -54,17 +60,22 @@ const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : nul
     createController(el: HTMLElement, options: object, cb: (controller: SpotifyController) => void): void;
   };
   type Win = Window & { onSpotifyIframeApiReady?: (api: SpotifyIFrameAPI) => void };
+  type Detail = { spotify?: string; beatport?: string; own?: string };
 
   const box = document.querySelector<HTMLElement>('[data-spotify-player]');
   const carousel = document.querySelector<HTMLElement>('[data-carousel]');
   if (box && carousel) {
     const facade = box.querySelector<HTMLElement>('[data-facade]')!;
     const facadeButton = facade.querySelector<HTMLButtonElement>('[data-embed-controlled]')!;
+    const stage = box.querySelector<HTMLElement>('[data-stage]')!;
     const frame = box.querySelector<HTMLElement>('[data-frame]')!;
     const mount = box.querySelector<HTMLElement>('[data-mount]')!;
     const pending = box.querySelector<HTMLElement>('[data-pending]')!;
     const fallback = box.querySelector<HTMLAnchorElement>('[data-fallback]')!;
     const buy = box.querySelector<HTMLAnchorElement>('[data-buy]')!;
+    const ownTracks = box.querySelector<HTMLElement>('[data-own-tracks]')!;
+    const compact = Number(box.dataset.compact);
+    const album = Number(box.dataset.album);
 
     let spotify = box.dataset.spotify ?? '';
     let state: 'idle' | 'loading' | 'ready' | 'failed' = 'idle';
@@ -74,6 +85,14 @@ const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : nul
     let timer = 0;
 
     const withTheme = (url: string) => `${url}?theme=0`; // dark embed; loadEntity keeps URL params
+    const heightFor = (url: string) => (url.includes('/album/') ? album : compact);
+
+    // The stage reserves the player's height; the change between compact and album is a CSS transition.
+    function setHeight(url: string) {
+      const h = heightFor(url);
+      stage.style.setProperty('--sp-h', `${h}px`);
+      facade.querySelector<HTMLElement>('.embed')?.style.setProperty('--embed-h', `${h}px`);
+    }
 
     function showFallback() {
       state = 'failed';
@@ -85,7 +104,7 @@ const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : nul
       if (state !== 'idle' || !spotify) return;
       state = 'loading';
       (window as Win).onSpotifyIframeApiReady = (api) => {
-        api.createController(mount, { url: withTheme(spotify), width: '100%', height: 152 }, (c) => {
+        api.createController(mount, { url: withTheme(spotify), width: '100%', height: '100%' }, (c) => {
           controller = c;
           state = 'ready';
           clearTimeout(timer);
@@ -109,34 +128,65 @@ const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : nul
       timer = window.setTimeout(() => state !== 'ready' && showFallback(), 8000);
     }
 
+    // Loads `url` in the player (or prepares it, before the API is there).
+    function load(url: string) {
+      spotify = url;
+      fallback.href = url;
+      if (state === 'failed') fallback.hidden = false;
+      setHeight(url);
+      if (state === 'ready' && controller) {
+        frame.hidden = false;
+        playOnReady = playing; // keep playing if it was playing; only load if it was paused
+        controller.loadEntity(withTheme(url));
+      } else {
+        facade.hidden = state === 'ready';
+        loadApi(); // first cover change counts as interaction
+      }
+    }
+
+    // Track switch for releases shared with other artists
+    function renderOwnTracks(tracks: { title: string; url: string }[]) {
+      ownTracks.hidden = tracks.length === 0;
+      ownTracks.replaceChildren(
+        ...tracks.map((track, i) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'sp__track mono';
+          button.textContent = track.title;
+          button.setAttribute('aria-pressed', String(i === 0));
+          button.addEventListener('click', () => {
+            ownTracks.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+            load(track.url);
+          });
+          return button;
+        }),
+      );
+    }
+
     facadeButton.addEventListener('click', () => {
       playOnReady = true; // the click is the intent to listen
       loadApi();
     });
 
     carousel.addEventListener('track:change', (event) => {
-      const detail = (event as CustomEvent<{ spotify?: string; beatport?: string }>).detail;
-      spotify = detail.spotify ?? '';
+      const detail = (event as CustomEvent<Detail>).detail;
       buy.hidden = !detail.beatport;
       if (detail.beatport) buy.href = detail.beatport;
-      fallback.href = spotify;
-      if (state === 'failed') fallback.hidden = !spotify;
 
-      // No Spotify link for this track: show the pending marker instead of the player
-      pending.hidden = !!spotify;
-      if (!spotify) {
+      const own: { title: string; url: string }[] = detail.own ? JSON.parse(detail.own) : [];
+      renderOwnTracks(own);
+      const url = own[0]?.url ?? detail.spotify ?? '';
+
+      // No Spotify link for this release: show the pending marker instead of the player
+      pending.hidden = !!url;
+      if (!url) {
+        spotify = '';
         frame.hidden = true;
         facade.hidden = true;
+        fallback.hidden = true;
         return;
       }
-      if (state === 'ready' && controller) {
-        frame.hidden = false;
-        playOnReady = playing; // keep playing if it was playing; only load if it was paused
-        controller.loadEntity(withTheme(spotify));
-      } else {
-        facade.hidden = state === 'ready';
-        loadApi(); // first cover change counts as interaction
-      }
+      load(url);
     });
   }
 </script>
@@ -163,14 +213,54 @@ const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : nul
     color: var(--moon-100);
   }
 
+  .sp__tracks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-xs);
+  }
+
+  .sp__tracks :global(.sp__track) {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--blue-600);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--fog-300);
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.3s var(--ease-slow), color 0.3s var(--ease-slow);
+  }
+
+  .sp__tracks :global(.sp__track:hover),
+  .sp__tracks :global(.sp__track[aria-pressed='true']) {
+    border-color: var(--fog-300);
+    color: var(--moon-100);
+  }
+
+  /* Reserves the player's height (compact 152px / album 352px) so nothing jumps; the change is smooth.
+     An exception to "transform/opacity only": an iframe can't be scaled without distorting it, and it's a
+     single change the visitor asked for. */
   .sp__stage {
-    min-height: 152px;
+    height: var(--sp-h);
+    transition: height 0.5s var(--ease-slow);
+  }
+
+  .sp__facade,
+  .sp__frame,
+  .sp__frame > :global(*) {
+    height: 100%;
+  }
+
+  .sp__facade :global(.embed) {
+    height: 100%;
   }
 
   .sp__frame :global(iframe) {
     display: block;
     width: 100%;
-    height: 152px;
+    height: 100%;
     border: 0;
     border-radius: 12px;
   }
@@ -178,7 +268,7 @@ const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : nul
   .sp__pending {
     display: grid;
     place-items: center;
-    min-height: 152px;
+    height: 100%;
     border: 1px solid var(--blue-600);
     border-radius: var(--radius);
   }
@@ -186,6 +276,12 @@ const startSpotify = startId ? `https://open.spotify.com/track/${startId}` : nul
   .sp__note {
     color: var(--fog-300);
     text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp__stage {
+      transition: none;
+    }
   }
 
   [hidden] {
