@@ -14,7 +14,7 @@ export const socials: SocialLink[] = [
   { name: 'SoundCloud', url: 'https://soundcloud.com/shaunnolanhmusic' },
   { name: 'Spotify', url: null },
   { name: 'Beatport', url: 'https://www.beatport.com/artist/shaun-nolanh/1291888' },
-  { name: 'Instagram', url: null },
+  { name: 'Instagram', url: 'https://www.instagram.com/shaunnolanh' },
   { name: 'Resident Advisor', url: null },
   { name: 'Mixcloud', url: null },
 ];
