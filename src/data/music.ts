@@ -94,7 +94,7 @@ export const carouselReleases: CarouselRelease[] = [
     label: 'BBop Music',
     year: 2026,
     spotify: 'https://open.spotify.com/intl-es/track/5Xd1cOtJfvpVCzQig19BhB?si=f56e0b6b06814488',
-    beatport: null,
+    beatport: 'https://www.beatport.com/track/i-drove-all-night-to-feel-this/22474582',
     tracks: ['I Drove All Night to Feel This'],
   },
   {
@@ -115,7 +115,7 @@ export const carouselReleases: CarouselRelease[] = [
     label: 'Mustache Crew Records',
     year: 2025,
     spotify: 'https://open.spotify.com/intl-es/track/7tHv1n8k9h7ZLupRcJTeq6?si=117ebc8225034d47',
-    beatport: null,
+    beatport: 'https://www.beatport.com/track/300-mg/20939457',
     tracks: ['300 Mg'],
   },
   {
