@@ -5,7 +5,7 @@ export const site = {
   /** e.g. '/press-kit/shaun-nolanh-press-kit.pdf' (see public/press-kit/README.md) */
   pressKitUrl: null as string | null,
   /** Booking email. It's never printed in the HTML as plain text (see ObfuscatedEmail). */
-  bookingEmail: null as string | null,
+  bookingEmail: 'ShaunNolanh@gmail.com' as string | null,
 };
 
 export type SocialLink = { name: string; url: string | null };

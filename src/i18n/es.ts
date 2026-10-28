@@ -71,6 +71,7 @@ export const es: Dictionary = {
     pressKit: 'Descargar press kit',
     pressKitPending: 'Press kit',
     emailLabel: 'O escribime directo:',
+    emailSubject: 'Booking — Shaun Nolanh',
   },
   collabs: {
     title: 'Collabs',

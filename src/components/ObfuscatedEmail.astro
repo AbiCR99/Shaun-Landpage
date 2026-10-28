@@ -3,16 +3,18 @@
 // and joined with JS on the visitor's browser. Simple bots that scrape HTML don't get it.
 interface Props {
   email: string | null;
+  /** Pre-filled subject of the mailto: link */
+  subject?: string;
 }
 
-const { email } = Astro.props;
+const { email, subject } = Astro.props;
 const reverse = (s: string) => [...s].reverse().join('');
 const [user, domain] = email ? email.split('@') : [];
 ---
 
 {
   email ? (
-    <a class="email" href="#booking" data-u={reverse(user)} data-d={reverse(domain)}>
+    <a class="email" href="#booking" data-u={reverse(user)} data-d={reverse(domain)} data-s={subject}>
       {user} [at] {domain.replace(/\./g, ' [dot] ')}
     </a>
   ) : (
@@ -24,7 +26,8 @@ const [user, domain] = email ? email.split('@') : [];
   document.querySelectorAll<HTMLAnchorElement>('a.email[data-u]').forEach((a) => {
     const reverse = (s: string) => [...s].reverse().join('');
     const address = `${reverse(a.dataset.u!)}@${reverse(a.dataset.d!)}`;
-    a.href = `mailto:${address}`;
+    const subject = a.dataset.s ? `?subject=${encodeURIComponent(a.dataset.s)}` : '';
+    a.href = `mailto:${address}${subject}`;
     a.textContent = address;
   });
 </script>

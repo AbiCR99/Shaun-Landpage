@@ -71,6 +71,7 @@ export const en = {
     pressKit: 'Download press kit',
     pressKitPending: 'Press kit',
     emailLabel: 'Or write directly:',
+    emailSubject: 'Booking — Shaun Nolanh',
   },
   collabs: {
     title: 'Collabs',

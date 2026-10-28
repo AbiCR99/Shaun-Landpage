@@ -33,7 +33,7 @@ const t = useTranslations(lang);
       </div>
       <p class="booking__email">
         <span class="mono">{t.booking.emailLabel}</span>
-        <ObfuscatedEmail email={site.bookingEmail} />
+        <ObfuscatedEmail email={site.bookingEmail} subject={t.booking.emailSubject} />
       </p>
     </header>
 
