@@ -51,7 +51,7 @@ export const en = {
   sets: {
     title: 'Radio Silence',
     kicker: 'DJ set series',
-    lead: 'A series of DJ sets: [DESCRIPCIÓN PENDIENTE].',
+    lead: 'When the signal drops, something else starts talking. A slow descent into deep, no rush, no noise.',
   },
   about: {
     title: 'About',

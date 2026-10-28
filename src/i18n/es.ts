@@ -51,7 +51,7 @@ export const es: Dictionary = {
   sets: {
     title: 'Radio Silence',
     kicker: 'Serie de DJ sets',
-    lead: 'Una serie de DJ sets: [DESCRIPCIÓN PENDIENTE].',
+    lead: 'Cuando se corta la señal, otra cosa empieza a hablar. Un descenso lento hacia lo profundo, sin apuro, sin ruido.',
   },
   about: {
     title: 'Bio',

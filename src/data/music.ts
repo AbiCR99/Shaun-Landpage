@@ -177,17 +177,12 @@ export const releases: Release[] = [
   },
 ];
 
-export type DjSet = Embed & { date: string | null; venue: string | null };
-
-// Radio Silence: 2–3 sets. The first one is the section's "light source".
-export const sets: DjSet[] = [
+// Radio Silence: one set for now, full width. Add more objects here as new sets come out
+// (the first one keeps the section's light).
+export const sets: Embed[] = [
   {
     // Embed code pasted by the team (SoundCloud → Share → Embed); toEmbed restyles it in the site's palette.
     link: '<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay; encrypted-media" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A2407457895&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>',
     title: 'Radio Silence – Best Warm Up',
-    date: null,
-    venue: null,
   },
-  { link: null, title: null, date: null, venue: null },
-  { link: null, title: null, date: null, venue: null },
 ];

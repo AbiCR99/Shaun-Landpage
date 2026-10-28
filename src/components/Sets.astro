@@ -43,11 +43,6 @@ const signalPath = `M${points.join(' L')}`;
       {
         sets.map((set, i) => (
           <li class="set">
-            <p class="set__meta mono">
-              <span>{String(i + 1).padStart(2, '0')}</span>
-              <span>{set.date ?? <span class="pending">[FECHA]</span>}</span>
-              <span>{set.venue ?? <span class="pending">[LUGAR]</span>}</span>
-            </p>
             <Embed embed={set} lang={lang} glow={i === 0} />
           </li>
         ))
@@ -164,21 +159,5 @@ const signalPath = `M${points.join(' L')}`;
     list-style: none;
   }
 
-  .set {
-    display: grid;
-    gap: var(--space-s);
-  }
-
-  .set__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-s);
-    color: var(--fog-300);
-  }
-
-  @media (min-width: 64rem) {
-    .sets {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
+  /* One set per row, full width of the container (SoundCloud's visual player, 300px tall) */
 </style>

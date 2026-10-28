@@ -59,6 +59,7 @@ Entre sus próximos lanzamientos se encuentran nuevas colaboraciones con Stan Se
   - Beatport bloquea el acceso automático: los datos los pega el equipo (código Embed o lista de tracks); no intentar leer beatport.com.
   - En `src/data/music.ts` se pega en `link` el link normal del track/set (en Beatport, la página del track o su código Embed) (Compartir → Copiar link), el `src` del iframe o el `<iframe>` completo. `toEmbed` (`src/data/embed.ts`) detecta la plataforma, arma la URL del reproductor y su altura.
   - Links cortos (`on.soundcloud.com`, `spotify.link`) o desconocidos frenan el build con un mensaje: hay que pegar la URL larga.
+- **Sets de Radio Silence** (`Sets.astro`, `sets` en `src/data/music.ts`): cada set es un `Embed` (`link` + `title`), sin fecha ni lugar. Uno por fila, a todo el ancho del bloque (SoundCloud en modo visual, 300 px). El primero lleva la luz (`glow`). Hoy hay uno solo; para sumar otro, agregar un objeto a `sets`.
 - **Formularios** (`ContactForm.astro`, `variant: 'booking' | 'collab'`): envían por POST a Web3Forms.
   - La key sale de `PUBLIC_WEB3FORMS_KEY` (ver `.env.example`). Sin la key, el botón de enviar queda deshabilitado y se muestra un marcador pendiente.
   - El honeypot es el campo oculto `botcheck`.
