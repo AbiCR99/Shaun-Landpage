@@ -55,14 +55,14 @@ export const en = {
   },
   about: {
     title: 'About',
-    // TO CONFIRM: support, upcoming releases and Native Producciones.
+    // Texts from the team (2026-10-28): short version and full bio.
     short:
-      'Shaun Nolanh is a progressive house producer and DJ from La Falda, in the hills of Córdoba, Argentina. His music takes its time: deep, hypnotic grooves with a tribal pulse underneath, built for the long arc of a night. A trained sound engineer and founder of Native Producciones, he hears every mix with a technician’s ear. His DJ series, Radio Silence, follows that search set by set. Supported by Gai Barone, with upcoming releases alongside Praneeth.D and Stan Seba.',
+      'Progressive house producer and DJ based in Argentina. A graduate Sound Engineer (La Metro, 2021), with releases on 3rd Avenue, BBop Music, Mustache Crew Records, and DUBLUCID. Supported by global scene leaders, currently working on new music and official remixes.',
     more: 'Read full bio',
     long: [
-      '[BIO LARGA PENDIENTE]',
-      // TO CONFIRM
-      'Beyond his own releases, he remixed “Neverl3vel” by Roberto Caceres & Jose Tabarez, and works in mixing, sound design and mentoring other producers.',
+      'Shaun Nolanh is a progressive house producer and DJ based in La Falda, Córdoba, Argentina. Originally from the iconic tourist city of Villa Carlos Paz, he immersed himself in the electronic music scene from a young age, attending shows by artists like Nick Warren and Guy J, and trying to recreate at home what moved him so deeply.',
+      'This passion led him to study sound at the La Metro School of Design and Audiovisual Communication, where he graduated as a Higher Technician in Sound in 2021. Since his 2025 debut on 3rd Avenue with Three of a Kind #033, he has collaborated with labels such as BBop Music, Mustache Crew Records, and DUBLUCID —releasing his latest EP, Hibiki, through the latter— as well as crafting an official remix of “Paul’s Tape” by Valentín Ciancio.',
+      'Alongside Stan Seba, he produced the EPs Chrome Butterflies and Case 701, earning support from Gai Barone, who featured their singles on his Patterns podcast. He is currently collaborating with Praneeth.D and working on upcoming official remixes for 3rd Avenue and Future Avenue.',
     ],
   },
   booking: {

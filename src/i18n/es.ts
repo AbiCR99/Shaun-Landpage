@@ -55,14 +55,14 @@ export const es: Dictionary = {
   },
   about: {
     title: 'Bio',
-    // A CONFIRMAR: support, próximos releases y Native Producciones.
+    // Textos del equipo (28/10/2026): versión corta y bio completa.
     short:
-      'Shaun Nolanh es productor y DJ de progressive house. Vive en La Falda, en las sierras de Córdoba. Su música avanza sin apuro: grooves profundos e hipnóticos con un pulso tribal de fondo, pensados para el recorrido largo de una noche. Es técnico superior en sonido y fundó Native Producciones, así que cada mezcla la escucha con oído de técnico. Radio Silence, su serie de DJ sets, sigue esa búsqueda set a set. Tiene el apoyo de Gai Barone y releases en camino junto a Praneeth.D y Stan Seba.',
+      'Productor y DJ de progressive house radicado en La Falda, Argentina. Titulado como Técnico Superior en Sonido por La Metro (2021), ha editado música en sellos como 3rd Avenue, BBop Music, Mustache Crew Records y DUBLUCID. Con lanzamientos respaldados por referentes de la escena global, actualmente trabaja en nuevos proyectos y remixes para 3rd Avenue y Future Avenue.',
     more: 'Leer bio completa',
     long: [
-      '[BIO LARGA PENDIENTE]',
-      // A CONFIRMAR
-      'Además de su música propia, remixó “Neverl3vel” de Roberto Caceres y Jose Tabarez, y trabaja en mezcla, diseño sonoro y mentoría de otros productores.',
+      'Shaun Nolanh es un productor y DJ de progressive house radicado en La Falda, Córdoba, Argentina. Originario de la emblemática ciudad turística de Villa Carlos Paz, desde muy joven se adentró en la escena electrónica asistiendo a presentaciones de referentes como Nick Warren y Guy J, lo que lo inspiró a intentar replicar en su hogar aquello que tanto lo cautivaba.',
+      'Este impulso lo llevó a formarse en la Escuela de Diseño y Comunicación Audiovisual “La Metro”, donde se tituló como Técnico Superior en Sonido en 2021. Desde su debut en 3rd Avenue en 2025 con Three of a Kind #033, ha colaborado con sellos como BBop Music, Mustache Crew Records y DUBLUCID —sello con el que editó su último EP, Hibiki—, además de realizar un remix oficial de «Paul’s Tape» de Valentín Ciancio.',
+      'Junto a Stan Seba produjo los EPs Chrome Butterflies y Case 701, un trabajo que le valió el respaldo de Gai Barone, quien incluyó sus sencillos en su podcast Patterns. Actualmente se encuentra colaborando con Praneeth.D y preparando nuevos remixes oficiales para 3rd Avenue y Future Avenue.',
     ],
   },
   booking: {
