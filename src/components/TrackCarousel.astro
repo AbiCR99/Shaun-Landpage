@@ -128,6 +128,13 @@ const coverAlt = (item: (typeof items)[number]) => `${t.music.coverOf} ${item.ti
         interacted = true;
         goTo(i);
       });
+      // A link only reacts to Enter; a button also to Space (on key up, without scrolling the page).
+      cover.addEventListener('keydown', (e) => {
+        if (e.key === ' ') e.preventDefault();
+      });
+      cover.addEventListener('keyup', (e) => {
+        if (e.key === ' ') cover.click();
+      });
     });
     root.querySelectorAll<HTMLButtonElement>('.cf__nav').forEach((button) => {
       button.hidden = false;
