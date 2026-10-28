@@ -21,7 +21,7 @@ export const es: Dictionary = {
     language: 'Idioma',
   },
   hero: {
-    tagline: 'Progressive house · Pulso tribal · Argentina',
+    tagline: 'Progressive House · Deep House · Organic House',
     listen: 'Escuchar',
     booking: 'Booking',
   },

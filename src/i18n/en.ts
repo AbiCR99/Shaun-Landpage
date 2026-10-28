@@ -21,7 +21,7 @@ export const en = {
     language: 'Language',
   },
   hero: {
-    tagline: 'Progressive house · Tribal undercurrents · Argentina',
+    tagline: 'Progressive House · Deep House · Organic House',
     listen: 'Listen',
     booking: 'Booking',
   },
